@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { store } from "@/lib/mock-store";
 
 export const Route = createFileRoute("/roles")({
-  head: () => ({ meta: [{ title: "BBS AI Builder — Roles" }] }),
+  head: () => ({ meta: [{ title: "BBS AI Builder — Szerepkörök" }] }),
   component: RolesPage,
 });
 

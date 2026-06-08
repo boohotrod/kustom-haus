@@ -13,7 +13,7 @@ import { appendAudit } from "@/lib/audit";
 import { FIELD_DATA_TYPES, FIELD_ENTITY_TYPES, type FieldDataType, type FieldEntityType } from "@/db/schema/registry/fields";
 
 export const Route = createFileRoute("/registry/fields/new")({
-  head: () => ({ meta: [{ title: "BBS AI Builder — New field" }] }),
+  head: () => ({ meta: [{ title: "BBS AI Builder — Új mező" }] }),
   component: NewFieldPage,
 });
 

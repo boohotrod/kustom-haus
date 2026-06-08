@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { store } from "@/lib/mock-store";
 
 export const Route = createFileRoute("/permissions")({
-  head: () => ({ meta: [{ title: "BBS AI Builder — Permissions" }] }),
+  head: () => ({ meta: [{ title: "BBS AI Builder — Jogosultságok" }] }),
   component: PermissionsPage,
 });
 

@@ -8,7 +8,7 @@ import { store, currentUser } from "@/lib/mock-store";
 import { filterInvisible } from "@/lib/rbac";
 
 export const Route = createFileRoute("/users")({
-  head: () => ({ meta: [{ title: "BBS AI Builder — Users" }] }),
+  head: () => ({ meta: [{ title: "BBS AI Builder — Felhasználók" }] }),
   component: UsersPage,
 });
 

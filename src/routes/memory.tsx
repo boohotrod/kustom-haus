@@ -16,7 +16,7 @@ import { MEMORY_SCOPES, type MemoryScope } from "@/db/schema/project/memory";
 import { appendAudit } from "@/lib/audit";
 
 export const Route = createFileRoute("/memory")({
-  head: () => ({ meta: [{ title: "BBS AI Builder — Project memory" }] }),
+  head: () => ({ meta: [{ title: "BBS AI Builder — Projektmemória" }] }),
   component: MemoryPage,
 });
 

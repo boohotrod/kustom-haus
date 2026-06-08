@@ -14,7 +14,7 @@ import { findOwner } from "@/lib/namespace-ownership";
 import { FIELD_STATUSES } from "@/db/schema/registry/fields";
 
 export const Route = createFileRoute("/registry/fields/")({
-  head: () => ({ meta: [{ title: "BBS AI Builder — Dynamic Field Registry" }] }),
+  head: () => ({ meta: [{ title: "BBS AI Builder — Dinamikus mező registry" }] }),
   component: FieldsListPage,
 });
 

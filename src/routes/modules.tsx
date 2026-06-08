@@ -14,7 +14,7 @@ import { MODULE_CATEGORIES } from "@/lib/bbs-modules";
 import { appendAudit } from "@/lib/audit";
 
 export const Route = createFileRoute("/modules")({
-  head: () => ({ meta: [{ title: "BBS AI Builder — Modules" }] }),
+  head: () => ({ meta: [{ title: "BBS AI Builder — Modulok" }] }),
   component: ModulesPage,
 });
 

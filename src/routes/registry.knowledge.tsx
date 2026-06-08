@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { store } from "@/lib/mock-store";
 
 export const Route = createFileRoute("/registry/knowledge")({
-  head: () => ({ meta: [{ title: "BBS AI Builder — Knowledge map" }] }),
+  head: () => ({ meta: [{ title: "BBS AI Builder — Tudástérkép" }] }),
   component: KnowledgePage,
 });
 

@@ -13,7 +13,7 @@ import { assertFieldTransition, canTransition, invalidatePermissionCache } from 
 import { FIELD_STATUSES, type FieldStatus } from "@/db/schema/registry/fields";
 
 export const Route = createFileRoute("/registry/fields/lifecycle")({
-  head: () => ({ meta: [{ title: "BBS AI Builder — Field lifecycle" }] }),
+  head: () => ({ meta: [{ title: "BBS AI Builder — Mező életciklus" }] }),
   component: LifecyclePage,
 });
 
