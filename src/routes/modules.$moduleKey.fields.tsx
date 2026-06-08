@@ -87,26 +87,26 @@ function ModuleFieldsPage() {
               const label = fieldLabel(store.fieldTranslations, f.currentVersionId ?? "", i18n.language, `${f.namespace}.${f.key}`);
               const isOwn = owner?.moduleKey === moduleKey;
               return (
-                <tr key={f.id} className="border-b">
-                  <td className="px-4 py-2 font-mono text-xs">
+                <TableRow key={f.id}>
+                  <TableCell className="font-mono text-xs">
                     <Link to="/registry/fields/$fieldId" params={{ fieldId: f.id }} className="hover:underline">
                       {f.namespace}.{f.key}
                     </Link>
-                  </td>
-                  <td className="px-4 py-2">{label}</td>
-                  <td className="px-4 py-2 text-xs">
+                  </TableCell>
+                  <TableCell>{label}</TableCell>
+                  <TableCell className="text-xs">
                     <Badge variant={isOwn ? "default" : "outline"}>{owner?.moduleKey ?? "—"}</Badge>
                     {isAdmin && owner && !isOwn && (
                       <span className="ml-1 text-[10px] text-muted-foreground">({owner.namespace})</span>
                     )}
-                  </td>
-                  <td className="px-4 py-2"><Badge variant={f.status === "active" ? "default" : "outline"}>{f.status}</Badge></td>
-                  <td className="px-4 py-2">
+                  </TableCell>
+                  <TableCell><Badge variant={f.status === "active" ? "default" : "outline"}>{f.status}</Badge></TableCell>
+                  <TableCell>
                     <Badge variant={decision.allowed ? "secondary" : "destructive"}>
                       {decision.allowed ? decision.reason : `denied: ${decision.reason}`}
                     </Badge>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               );
             })}
           </TableBody>
