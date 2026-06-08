@@ -24,7 +24,7 @@ export const Route = createFileRoute("/modules/$moduleKey")({
     const { t } = useTranslation();
     return <BuilderShell title="404"><div className="text-sm">{t("errors.moduleNotFound")}</div></BuilderShell>;
   },
-  errorComponent: ({ error }) => (<BuilderShell title="Error"><div className="text-sm text-destructive">{String(error)}</div></BuilderShell>),
+  errorComponent: ({ error }) => <RouteErrorFallback error={error} />,
   loader: ({ params }) => {
     const m = store.modules.find((x) => x.key === params.moduleKey);
     if (!m) throw notFound();
