@@ -9,38 +9,339 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UsersRouteImport } from './routes/users'
+import { Route as RolesRouteImport } from './routes/roles'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as PermissionsRouteImport } from './routes/permissions'
+import { Route as ModulesRouteImport } from './routes/modules'
+import { Route as MemoryRouteImport } from './routes/memory'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as DecisionsRouteImport } from './routes/decisions'
+import { Route as AuditRouteImport } from './routes/audit'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as UUsernameRouteImport } from './routes/u.$username'
+import { Route as StubsTravelRouteImport } from './routes/stubs.travel'
+import { Route as StubsSupportRouteImport } from './routes/stubs.support'
+import { Route as StubsMediaRouteImport } from './routes/stubs.media'
+import { Route as StubsGarageRouteImport } from './routes/stubs.garage'
+import { Route as RegistryTaxonomyRouteImport } from './routes/registry.taxonomy'
+import { Route as RegistryKnowledgeRouteImport } from './routes/registry.knowledge'
+import { Route as RegistryFederationRouteImport } from './routes/registry.federation'
+import { Route as RegistryAiRouteImport } from './routes/registry.ai'
 
+const UsersRoute = UsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RolesRoute = RolesRouteImport.update({
+  id: '/roles',
+  path: '/roles',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PermissionsRoute = PermissionsRouteImport.update({
+  id: '/permissions',
+  path: '/permissions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ModulesRoute = ModulesRouteImport.update({
+  id: '/modules',
+  path: '/modules',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MemoryRoute = MemoryRouteImport.update({
+  id: '/memory',
+  path: '/memory',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DecisionsRoute = DecisionsRouteImport.update({
+  id: '/decisions',
+  path: '/decisions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuditRoute = AuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UUsernameRoute = UUsernameRouteImport.update({
+  id: '/u/$username',
+  path: '/u/$username',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StubsTravelRoute = StubsTravelRouteImport.update({
+  id: '/stubs/travel',
+  path: '/stubs/travel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StubsSupportRoute = StubsSupportRouteImport.update({
+  id: '/stubs/support',
+  path: '/stubs/support',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StubsMediaRoute = StubsMediaRouteImport.update({
+  id: '/stubs/media',
+  path: '/stubs/media',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StubsGarageRoute = StubsGarageRouteImport.update({
+  id: '/stubs/garage',
+  path: '/stubs/garage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegistryTaxonomyRoute = RegistryTaxonomyRouteImport.update({
+  id: '/registry/taxonomy',
+  path: '/registry/taxonomy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegistryKnowledgeRoute = RegistryKnowledgeRouteImport.update({
+  id: '/registry/knowledge',
+  path: '/registry/knowledge',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegistryFederationRoute = RegistryFederationRouteImport.update({
+  id: '/registry/federation',
+  path: '/registry/federation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegistryAiRoute = RegistryAiRouteImport.update({
+  id: '/registry/ai',
+  path: '/registry/ai',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/audit': typeof AuditRoute
+  '/decisions': typeof DecisionsRoute
+  '/login': typeof LoginRoute
+  '/memory': typeof MemoryRoute
+  '/modules': typeof ModulesRoute
+  '/permissions': typeof PermissionsRoute
+  '/profile': typeof ProfileRoute
+  '/roles': typeof RolesRoute
+  '/users': typeof UsersRoute
+  '/registry/ai': typeof RegistryAiRoute
+  '/registry/federation': typeof RegistryFederationRoute
+  '/registry/knowledge': typeof RegistryKnowledgeRoute
+  '/registry/taxonomy': typeof RegistryTaxonomyRoute
+  '/stubs/garage': typeof StubsGarageRoute
+  '/stubs/media': typeof StubsMediaRoute
+  '/stubs/support': typeof StubsSupportRoute
+  '/stubs/travel': typeof StubsTravelRoute
+  '/u/$username': typeof UUsernameRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/audit': typeof AuditRoute
+  '/decisions': typeof DecisionsRoute
+  '/login': typeof LoginRoute
+  '/memory': typeof MemoryRoute
+  '/modules': typeof ModulesRoute
+  '/permissions': typeof PermissionsRoute
+  '/profile': typeof ProfileRoute
+  '/roles': typeof RolesRoute
+  '/users': typeof UsersRoute
+  '/registry/ai': typeof RegistryAiRoute
+  '/registry/federation': typeof RegistryFederationRoute
+  '/registry/knowledge': typeof RegistryKnowledgeRoute
+  '/registry/taxonomy': typeof RegistryTaxonomyRoute
+  '/stubs/garage': typeof StubsGarageRoute
+  '/stubs/media': typeof StubsMediaRoute
+  '/stubs/support': typeof StubsSupportRoute
+  '/stubs/travel': typeof StubsTravelRoute
+  '/u/$username': typeof UUsernameRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/audit': typeof AuditRoute
+  '/decisions': typeof DecisionsRoute
+  '/login': typeof LoginRoute
+  '/memory': typeof MemoryRoute
+  '/modules': typeof ModulesRoute
+  '/permissions': typeof PermissionsRoute
+  '/profile': typeof ProfileRoute
+  '/roles': typeof RolesRoute
+  '/users': typeof UsersRoute
+  '/registry/ai': typeof RegistryAiRoute
+  '/registry/federation': typeof RegistryFederationRoute
+  '/registry/knowledge': typeof RegistryKnowledgeRoute
+  '/registry/taxonomy': typeof RegistryTaxonomyRoute
+  '/stubs/garage': typeof StubsGarageRoute
+  '/stubs/media': typeof StubsMediaRoute
+  '/stubs/support': typeof StubsSupportRoute
+  '/stubs/travel': typeof StubsTravelRoute
+  '/u/$username': typeof UUsernameRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/audit'
+    | '/decisions'
+    | '/login'
+    | '/memory'
+    | '/modules'
+    | '/permissions'
+    | '/profile'
+    | '/roles'
+    | '/users'
+    | '/registry/ai'
+    | '/registry/federation'
+    | '/registry/knowledge'
+    | '/registry/taxonomy'
+    | '/stubs/garage'
+    | '/stubs/media'
+    | '/stubs/support'
+    | '/stubs/travel'
+    | '/u/$username'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/audit'
+    | '/decisions'
+    | '/login'
+    | '/memory'
+    | '/modules'
+    | '/permissions'
+    | '/profile'
+    | '/roles'
+    | '/users'
+    | '/registry/ai'
+    | '/registry/federation'
+    | '/registry/knowledge'
+    | '/registry/taxonomy'
+    | '/stubs/garage'
+    | '/stubs/media'
+    | '/stubs/support'
+    | '/stubs/travel'
+    | '/u/$username'
+  id:
+    | '__root__'
+    | '/'
+    | '/audit'
+    | '/decisions'
+    | '/login'
+    | '/memory'
+    | '/modules'
+    | '/permissions'
+    | '/profile'
+    | '/roles'
+    | '/users'
+    | '/registry/ai'
+    | '/registry/federation'
+    | '/registry/knowledge'
+    | '/registry/taxonomy'
+    | '/stubs/garage'
+    | '/stubs/media'
+    | '/stubs/support'
+    | '/stubs/travel'
+    | '/u/$username'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuditRoute: typeof AuditRoute
+  DecisionsRoute: typeof DecisionsRoute
+  LoginRoute: typeof LoginRoute
+  MemoryRoute: typeof MemoryRoute
+  ModulesRoute: typeof ModulesRoute
+  PermissionsRoute: typeof PermissionsRoute
+  ProfileRoute: typeof ProfileRoute
+  RolesRoute: typeof RolesRoute
+  UsersRoute: typeof UsersRoute
+  RegistryAiRoute: typeof RegistryAiRoute
+  RegistryFederationRoute: typeof RegistryFederationRoute
+  RegistryKnowledgeRoute: typeof RegistryKnowledgeRoute
+  RegistryTaxonomyRoute: typeof RegistryTaxonomyRoute
+  StubsGarageRoute: typeof StubsGarageRoute
+  StubsMediaRoute: typeof StubsMediaRoute
+  StubsSupportRoute: typeof StubsSupportRoute
+  StubsTravelRoute: typeof StubsTravelRoute
+  UUsernameRoute: typeof UUsernameRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/users': {
+      id: '/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof UsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/roles': {
+      id: '/roles'
+      path: '/roles'
+      fullPath: '/roles'
+      preLoaderRoute: typeof RolesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/permissions': {
+      id: '/permissions'
+      path: '/permissions'
+      fullPath: '/permissions'
+      preLoaderRoute: typeof PermissionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/modules': {
+      id: '/modules'
+      path: '/modules'
+      fullPath: '/modules'
+      preLoaderRoute: typeof ModulesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/memory': {
+      id: '/memory'
+      path: '/memory'
+      fullPath: '/memory'
+      preLoaderRoute: typeof MemoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/decisions': {
+      id: '/decisions'
+      path: '/decisions'
+      fullPath: '/decisions'
+      preLoaderRoute: typeof DecisionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/audit': {
+      id: '/audit'
+      path: '/audit'
+      fullPath: '/audit'
+      preLoaderRoute: typeof AuditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,12 +349,103 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/u/$username': {
+      id: '/u/$username'
+      path: '/u/$username'
+      fullPath: '/u/$username'
+      preLoaderRoute: typeof UUsernameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stubs/travel': {
+      id: '/stubs/travel'
+      path: '/stubs/travel'
+      fullPath: '/stubs/travel'
+      preLoaderRoute: typeof StubsTravelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stubs/support': {
+      id: '/stubs/support'
+      path: '/stubs/support'
+      fullPath: '/stubs/support'
+      preLoaderRoute: typeof StubsSupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stubs/media': {
+      id: '/stubs/media'
+      path: '/stubs/media'
+      fullPath: '/stubs/media'
+      preLoaderRoute: typeof StubsMediaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stubs/garage': {
+      id: '/stubs/garage'
+      path: '/stubs/garage'
+      fullPath: '/stubs/garage'
+      preLoaderRoute: typeof StubsGarageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/registry/taxonomy': {
+      id: '/registry/taxonomy'
+      path: '/registry/taxonomy'
+      fullPath: '/registry/taxonomy'
+      preLoaderRoute: typeof RegistryTaxonomyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/registry/knowledge': {
+      id: '/registry/knowledge'
+      path: '/registry/knowledge'
+      fullPath: '/registry/knowledge'
+      preLoaderRoute: typeof RegistryKnowledgeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/registry/federation': {
+      id: '/registry/federation'
+      path: '/registry/federation'
+      fullPath: '/registry/federation'
+      preLoaderRoute: typeof RegistryFederationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/registry/ai': {
+      id: '/registry/ai'
+      path: '/registry/ai'
+      fullPath: '/registry/ai'
+      preLoaderRoute: typeof RegistryAiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuditRoute: AuditRoute,
+  DecisionsRoute: DecisionsRoute,
+  LoginRoute: LoginRoute,
+  MemoryRoute: MemoryRoute,
+  ModulesRoute: ModulesRoute,
+  PermissionsRoute: PermissionsRoute,
+  ProfileRoute: ProfileRoute,
+  RolesRoute: RolesRoute,
+  UsersRoute: UsersRoute,
+  RegistryAiRoute: RegistryAiRoute,
+  RegistryFederationRoute: RegistryFederationRoute,
+  RegistryKnowledgeRoute: RegistryKnowledgeRoute,
+  RegistryTaxonomyRoute: RegistryTaxonomyRoute,
+  StubsGarageRoute: StubsGarageRoute,
+  StubsMediaRoute: StubsMediaRoute,
+  StubsSupportRoute: StubsSupportRoute,
+  StubsTravelRoute: StubsTravelRoute,
+  UUsernameRoute: UUsernameRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
