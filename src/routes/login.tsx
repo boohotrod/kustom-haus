@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { login } from "@/lib/mock-store";
 
 export const Route = createFileRoute("/login")({
-  head: () => ({ meta: [{ title: "BBS AI Builder — Sign in" }] }),
+  head: () => ({ meta: [{ title: "BBS AI Builder — Bejelentkezés" }] }),
   component: LoginPage,
 });
 
@@ -23,7 +23,7 @@ function LoginPage() {
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const u = login(username, password);
-    if (!u) { setError("Invalid credentials"); return; }
+    if (!u) { setError(t("login.invalid")); return; }
     void navigate({ to: "/" });
   };
 

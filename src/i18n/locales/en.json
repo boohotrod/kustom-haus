@@ -41,7 +41,9 @@
     "language": "Language",
     "yes": "Yes",
     "no": "No",
-    "back": "Back"
+    "back": "Back",
+    "goHome": "Go home",
+    "retry": "Try again"
   },
   "dashboard": {
     "title": "Builder dashboard",
@@ -315,7 +317,12 @@
   "registry": {
     "taxonomy": {
       "title": "Universal Taxonomy Engine",
-      "subtitle": "Shared categories, tags, vehicle types, countries, languages"
+      "subtitle": "Shared categories, tags, vehicle types, countries, languages",
+      "cols": {
+        "scope": "Scope",
+        "key": "Key",
+        "label": "Label"
+      }
     },
     "federation": {
       "title": "Federation Registry",
@@ -332,7 +339,12 @@
     },
     "ai": {
       "title": "AI Registry",
-      "subtitle": "Providers, models and routing rules (dummy provider in v0.1)"
+      "subtitle": "Providers, models and routing rules (dummy provider in v0.1)",
+      "cols": {
+        "key": "Key",
+        "kind": "Kind",
+        "status": "Status"
+      }
     },
     "knowledge": {
       "title": "Knowledge Map Registry",
@@ -415,10 +427,24 @@
     "username": "Username",
     "password": "Password",
     "submit": "Sign in",
-    "previewHint": "Preview mode: use demo / demo"
+    "previewHint": "Preview mode: use demo / demo",
+    "invalid": "Invalid credentials"
   },
   "stubs": {
     "title": "{{module}} module",
     "description": "Stub — kept in scope for the BBS portal long-term plan, not implemented in B-1."
+  },
+  "errors": {
+    "pageNotFound": {
+      "title": "Page not found",
+      "body": "The page you're looking for doesn't exist or has been moved."
+    },
+    "boundary": {
+      "title": "This page didn't load",
+      "body": "Something went wrong on our end. You can try refreshing or head back home."
+    },
+    "fieldNotFound": "Field not found.",
+    "versionNotFound": "Version not found.",
+    "moduleNotFound": "Module not found."
   }
 }

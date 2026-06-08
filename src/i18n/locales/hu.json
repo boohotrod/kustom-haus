@@ -41,7 +41,9 @@
     "language": "Nyelv",
     "yes": "Igen",
     "no": "Nem",
-    "back": "Vissza"
+    "back": "Vissza",
+    "goHome": "Vissza a kezdőlapra",
+    "retry": "Újrapróbálás"
   },
   "dashboard": {
     "title": "Builder műszerfal",
@@ -314,8 +316,13 @@
   },
   "registry": {
     "taxonomy": {
-      "title": "Universal Taxonomy Engine",
-      "subtitle": "Közös kategóriák, címkék, járműtípusok, országok, nyelvek"
+      "title": "Univerzális taxonómia",
+      "subtitle": "Közös kategóriák, címkék, járműtípusok, országok, nyelvek",
+      "cols": {
+        "scope": "Hatókör",
+        "key": "Kulcs",
+        "label": "Címke"
+      }
     },
     "federation": {
       "title": "Federation Registry",
@@ -331,8 +338,13 @@
       }
     },
     "ai": {
-      "title": "AI Registry",
-      "subtitle": "Providerek, modellek és routing szabályok (v0.1: dummy provider)"
+      "title": "AI registry",
+      "subtitle": "Providerek, modellek és routing szabályok (v0.1: dummy provider)",
+      "cols": {
+        "key": "Kulcs",
+        "kind": "Típus",
+        "status": "Státusz"
+      }
     },
     "knowledge": {
       "title": "Knowledge Map Registry",
@@ -415,10 +427,24 @@
     "username": "Felhasználónév",
     "password": "Jelszó",
     "submit": "Bejelentkezés",
-    "previewHint": "Preview mód: demo / demo"
+    "previewHint": "Preview mód: demo / demo",
+    "invalid": "Hibás bejelentkezési adatok"
   },
   "stubs": {
     "title": "{{module}} modul",
     "description": "Stub — a hosszú távú BBS portál tervben szerepel, B-1-ben nem implementált."
+  },
+  "errors": {
+    "pageNotFound": {
+      "title": "Az oldal nem található",
+      "body": "A keresett oldal nem létezik vagy átkerült máshová."
+    },
+    "boundary": {
+      "title": "Az oldal nem töltődött be",
+      "body": "Hiba történt. Próbáld újra, vagy menj vissza a kezdőlapra."
+    },
+    "fieldNotFound": "A mező nem található.",
+    "versionNotFound": "A verzió nem található.",
+    "moduleNotFound": "A modul nem található."
   }
 }

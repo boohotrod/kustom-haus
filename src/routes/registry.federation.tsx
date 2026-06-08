@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { store } from "@/lib/mock-store";
 
 export const Route = createFileRoute("/registry/federation")({
-  head: () => ({ meta: [{ title: "BBS AI Builder — Federation" }] }),
+  head: () => ({ meta: [{ title: "BBS AI Builder — Föderáció" }] }),
   component: FederationPage,
 });
 

@@ -11,7 +11,7 @@ import { store } from "@/lib/mock-store";
 import { verifyAuditChain } from "@/lib/audit";
 
 export const Route = createFileRoute("/audit")({
-  head: () => ({ meta: [{ title: "BBS AI Builder — Audit log" }] }),
+  head: () => ({ meta: [{ title: "BBS AI Builder — Audit napló" }] }),
   component: AuditPage,
 });
 

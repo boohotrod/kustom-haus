@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { store } from "@/lib/mock-store";
 
 export const Route = createFileRoute("/registry/taxonomy")({
-  head: () => ({ meta: [{ title: "BBS AI Builder — Taxonomy" }] }),
+  head: () => ({ meta: [{ title: "BBS AI Builder — Taxonómia" }] }),
   component: TaxonomyPage,
 });
 
@@ -19,7 +19,7 @@ function TaxonomyPage() {
       <Badge variant="outline" className="mb-3">{t("common.comingInB2")}</Badge>
       <div className="rounded-md border">
         <Table>
-          <TableHeader><TableRow><TableHead>Scope</TableHead><TableHead>Key</TableHead><TableHead>Label</TableHead></TableRow></TableHeader>
+          <TableHeader><TableRow><TableHead>{t("registry.taxonomy.cols.scope")}</TableHead><TableHead>{t("registry.taxonomy.cols.key")}</TableHead><TableHead>{t("registry.taxonomy.cols.label")}</TableHead></TableRow></TableHeader>
           <TableBody>
             {store.taxonomies.map((tx) => (
               <TableRow key={tx.id}>

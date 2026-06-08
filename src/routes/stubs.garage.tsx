@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/stubs/garage")({
-  head: () => ({ meta: [{ title: "BBS AI Builder — Garage stub" }] }),
+  head: () => ({ meta: [{ title: "BBS AI Builder — Garázs stub" }] }),
   component: StubPage,
 });
 

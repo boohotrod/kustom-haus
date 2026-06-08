@@ -9,7 +9,7 @@ import { filterInvisible } from "@/lib/rbac";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "BBS AI Builder — Dashboard" },
+      { title: "BBS AI Builder — Műszerfal" },
       { name: "description", content: "Constitutional builder platform for the BBS ecosystem." },
     ],
   }),

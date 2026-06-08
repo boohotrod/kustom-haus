@@ -19,8 +19,11 @@ import {
 } from "@/lib/namespace-ownership";
 
 export const Route = createFileRoute("/modules/$moduleKey")({
-  head: () => ({ meta: [{ title: "BBS AI Builder — Module detail" }] }),
-  notFoundComponent: () => (<BuilderShell title="404"><div className="text-sm">Module not found.</div></BuilderShell>),
+  head: () => ({ meta: [{ title: "BBS AI Builder — Modul részletek" }] }),
+  notFoundComponent: () => {
+    const { t } = useTranslation();
+    return <BuilderShell title="404"><div className="text-sm">{t("errors.moduleNotFound")}</div></BuilderShell>;
+  },
   errorComponent: ({ error }) => (<BuilderShell title="Error"><div className="text-sm text-destructive">{String(error)}</div></BuilderShell>),
   loader: ({ params }) => {
     const m = store.modules.find((x) => x.key === params.moduleKey);

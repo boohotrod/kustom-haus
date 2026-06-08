@@ -10,7 +10,10 @@ import { store } from "@/lib/mock-store";
 
 export const Route = createFileRoute("/registry/fields/$fieldId/values")({
   head: () => ({ meta: [{ title: "BBS AI Builder — EAV inspector" }] }),
-  notFoundComponent: () => <BuilderShell title="404"><div className="text-sm">Field not found.</div></BuilderShell>,
+  notFoundComponent: () => {
+    const { t } = useTranslation();
+    return <BuilderShell title="404"><div className="text-sm">{t("errors.fieldNotFound")}</div></BuilderShell>;
+  },
   errorComponent: ({ error }) => <BuilderShell title="Error"><div className="text-sm text-destructive">{String(error)}</div></BuilderShell>,
   loader: ({ params }) => {
     const f = store.fieldDefinitions.find((x) => x.id === params.fieldId);

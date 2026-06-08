@@ -41,7 +41,9 @@
     "language": "Språk",
     "yes": "Ja",
     "no": "Nei",
-    "back": "Tilbake"
+    "back": "Tilbake",
+    "goHome": "Til forsiden",
+    "retry": "Prøv igjen"
   },
   "dashboard": {
     "title": "Byggerens dashbord",
@@ -315,7 +317,12 @@
   "registry": {
     "taxonomy": {
       "title": "Universal Taxonomy Engine",
-      "subtitle": "Felles kategorier, etiketter, kjøretøytyper, land, språk"
+      "subtitle": "Felles kategorier, etiketter, kjøretøytyper, land, språk",
+      "cols": {
+        "scope": "Omfang",
+        "key": "Nøkkel",
+        "label": "Etikett"
+      }
     },
     "federation": {
       "title": "Federation Registry",
@@ -332,7 +339,12 @@
     },
     "ai": {
       "title": "AI-register",
-      "subtitle": "Leverandører, modeller og rutingsregler (v0.1: dummy-leverandør)"
+      "subtitle": "Leverandører, modeller og rutingsregler (v0.1: dummy-leverandør)",
+      "cols": {
+        "key": "Nøkkel",
+        "kind": "Type",
+        "status": "Status"
+      }
     },
     "knowledge": {
       "title": "Knowledge Map Registry",
@@ -415,10 +427,24 @@
     "username": "Brukernavn",
     "password": "Passord",
     "submit": "Logg inn",
-    "previewHint": "Forhåndsvisning: bruk demo / demo"
+    "previewHint": "Forhåndsvisning: bruk demo / demo",
+    "invalid": "Ugyldige påloggingsdetaljer"
   },
   "stubs": {
     "title": "{{module}}-modul",
     "description": "Stub — del av langsiktig BBS-portalplan, ikke implementert i B-1."
+  },
+  "errors": {
+    "pageNotFound": {
+      "title": "Siden ble ikke funnet",
+      "body": "Siden du leter etter finnes ikke eller har blitt flyttet."
+    },
+    "boundary": {
+      "title": "Siden lastet ikke",
+      "body": "Noe gikk galt. Prøv igjen, eller gå tilbake til forsiden."
+    },
+    "fieldNotFound": "Feltet ble ikke funnet.",
+    "versionNotFound": "Versjonen ble ikke funnet.",
+    "moduleNotFound": "Modulen ble ikke funnet."
   }
 }
