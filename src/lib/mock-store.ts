@@ -4,6 +4,7 @@ import { appendAudit, appendAuditCheckpoint, type AuditEvent } from "./audit";
 import type { ProfileType } from "@/db/schema/identity/profiles";
 import type { ModuleState, ModuleVisibility } from "@/db/schema/project/modules";
 import type { MemoryScope } from "@/db/schema/project/memory";
+import { BBS_SEED_MODULES, type ModuleCategory, type RoadmapPhase } from "./bbs-modules";
 import type {
   MockFieldDefinition, MockFieldVersion, MockFieldTranslation,
   MockFieldTaxonomyBinding, MockFieldPermission, MockFieldEntityBinding,
@@ -35,12 +36,12 @@ export type MockDecision = { id: string; code: string; title: string; status: st
 export type MockModule = {
   id: string;
   key: string;
-  /** @deprecated UI now reads label via i18n key `modules.catalog.<key>.name`. Kept for backwards compatibility. */
+  /** @deprecated UI reads label via i18n key `modules.catalog.<key>.name`. Kept as fallback. */
   name: string;
   state: ModuleState;
   visibility: ModuleVisibility;
-  category: import("./bbs-modules").ModuleCategory;
-  roadmapPhase: import("./bbs-modules").RoadmapPhase;
+  category: ModuleCategory;
+  roadmapPhase: RoadmapPhase;
   dependsOn: string[];
 };
 export type MockTaxonomy = { id: string; scope: string; key: string; label: string };
@@ -117,10 +118,10 @@ export const store = {
     { id: uid(), code: "ADR-004", title: "Dummy AI provider in v0.1", status: "accepted", relatedModules: ["ai"], createdAt: new Date().toISOString() },
   ] as MockDecision[],
 
-  // B-2.3: full BBS seed module catalogue. Names are i18n keys at render time;
-  // `name` here is just a fallback label.
-  modules: (require("./bbs-modules") as typeof import("./bbs-modules")).BBS_SEED_MODULES.map((m) => ({
-    id: uid(), key: m.key, name: m.key, state: m.state, visibility: m.visibility,
+  // B-2.3: full BBS seed module catalogue. UI labels render via i18n keys.
+  modules: BBS_SEED_MODULES.map((m) => ({
+    id: uid(), key: m.key, name: m.key,
+    state: m.state, visibility: m.visibility,
     category: m.category, roadmapPhase: m.roadmapPhase, dependsOn: m.dependsOn,
   })) as MockModule[],
 
