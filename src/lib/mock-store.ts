@@ -4,6 +4,7 @@ import { appendAudit, appendAuditCheckpoint, type AuditEvent } from "./audit";
 import type { ProfileType } from "@/db/schema/identity/profiles";
 import type { ModuleState, ModuleVisibility } from "@/db/schema/project/modules";
 import type { MemoryScope } from "@/db/schema/project/memory";
+import { BBS_SEED_MODULES, type ModuleCategory, type RoadmapPhase } from "./bbs-modules";
 import type {
   MockFieldDefinition, MockFieldVersion, MockFieldTranslation,
   MockFieldTaxonomyBinding, MockFieldPermission, MockFieldEntityBinding,
@@ -32,7 +33,17 @@ export type MockRolePermission = { roleKey: string; permissionKey: string; effec
 export type MockPermissionOverride = { userId: string; permissionKey: string; effect: "allow" | "deny" };
 export type MockMemory = { id: string; scope: MemoryScope; title: string; body: string; updatedAt: string };
 export type MockDecision = { id: string; code: string; title: string; status: string; relatedModules: string[]; createdAt: string };
-export type MockModule = { id: string; key: string; name: string; state: ModuleState; visibility: ModuleVisibility };
+export type MockModule = {
+  id: string;
+  key: string;
+  /** @deprecated UI reads label via i18n key `modules.catalog.<key>.name`. Kept as fallback. */
+  name: string;
+  state: ModuleState;
+  visibility: ModuleVisibility;
+  category: ModuleCategory;
+  roadmapPhase: RoadmapPhase;
+  dependsOn: string[];
+};
 export type MockTaxonomy = { id: string; scope: string; key: string; label: string };
 export type MockPeer = { id: string; peerKey: string; baseUrl: string; status: "pending" | "active" | "suspended" };
 export type MockFederationUser = {
@@ -107,19 +118,12 @@ export const store = {
     { id: uid(), code: "ADR-004", title: "Dummy AI provider in v0.1", status: "accepted", relatedModules: ["ai"], createdAt: new Date().toISOString() },
   ] as MockDecision[],
 
-  modules: [
-    { id: uid(), key: "identity", name: "Identity & RBAC", state: "in_dev", visibility: "internal" },
-    { id: uid(), key: "audit", name: "Immutable audit", state: "in_dev", visibility: "internal" },
-    { id: uid(), key: "project", name: "Project memory & ADR", state: "in_dev", visibility: "internal" },
-    { id: uid(), key: "taxonomy", name: "Universal Taxonomy Engine", state: "planned", visibility: "internal" },
-    { id: uid(), key: "federation", name: "Federation Registry", state: "planned", visibility: "internal" },
-    { id: uid(), key: "ai", name: "AI Registry", state: "planned", visibility: "internal" },
-    { id: uid(), key: "knowledge", name: "Knowledge Map", state: "planned", visibility: "internal" },
-    { id: uid(), key: "support", name: "Support (BBS portal)", state: "planned", visibility: "hidden" },
-    { id: uid(), key: "travel", name: "Travel (BBS portal)", state: "planned", visibility: "hidden" },
-    { id: uid(), key: "media", name: "Media (BBS portal)", state: "planned", visibility: "hidden" },
-    { id: uid(), key: "garage", name: "Garage (BBS portal)", state: "planned", visibility: "hidden" },
-  ] as MockModule[],
+  // B-2.3: full BBS seed module catalogue. UI labels render via i18n keys.
+  modules: BBS_SEED_MODULES.map((m) => ({
+    id: uid(), key: m.key, name: m.key,
+    state: m.state, visibility: m.visibility,
+    category: m.category, roadmapPhase: m.roadmapPhase, dependsOn: m.dependsOn,
+  })) as MockModule[],
 
   taxonomies: [
     { id: uid(), scope: "country", key: "HU", label: "Hungary" },
