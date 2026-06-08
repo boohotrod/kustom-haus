@@ -445,6 +445,7 @@
     },
     "fieldNotFound": "Feltet ble ikke funnet.",
     "versionNotFound": "Versjonen ble ikke funnet.",
-    "moduleNotFound": "Modulen ble ikke funnet."
+    "moduleNotFound": "Modulen ble ikke funnet.",
+    "title": "Feil"
   }
 }
