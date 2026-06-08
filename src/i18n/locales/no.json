@@ -1,18 +1,424 @@
 {
-  "app": { "name": "BBS AI Builder", "tagline": "Konstitusjonell byggeplattform for BBS-økosystemet" },
-  "nav": { "dashboard": "Dashbord", "users": "Brukere", "roles": "Roller", "permissions": "Tillatelser", "memory": "Prosjektminne", "decisions": "Beslutninger (ADR)", "modules": "Moduler", "audit": "Revisjonslogg", "registry": "Registre", "taxonomy": "Taksonomi", "fields": "Feltregister", "federation": "Føderasjon", "ai": "AI-register", "knowledge": "Kunnskapskart", "profile": "Min profil", "stubs": "Modul-stubber", "support": "Support", "travel": "Reise", "media": "Media", "garage": "Garasje", "logout": "Logg ut", "login": "Logg inn" },
-  "common": { "search": "Søk", "create": "Opprett", "edit": "Rediger", "delete": "Slett", "save": "Lagre", "cancel": "Avbryt", "loading": "Laster…", "empty": "Ingenting her ennå", "comingInB2": "Full implementasjon kommer i B-2+", "previewMode": "Forhåndsvisning — data er kun i minnet", "language": "Språk", "yes": "Ja", "no": "Nei", "back": "Tilbake" },
-  "dashboard": { "title": "Byggerens dashbord", "subtitle": "Prosjektets livssyklus, minne og beslutninger på ett sted", "stats": { "users": "Identiteter", "modules": "Moduler", "decisions": "Beslutninger", "memoryEntries": "Minneoppføringer" } },
-  "users": { "title": "Identitetsregister", "subtitle": "Global Identity Registry — én sannhetskilde for hele BBS-økosystemet", "columns": { "username": "Brukernavn", "email": "E-post", "type": "Profiltype", "roles": "Roller", "status": "Status" }, "invisible": "Skjult (SuperAdmin)" },
-  "roles": { "title": "Roller og RBAC", "subtitle": "Rollekatalog og tillatelses-tilordninger" },
-  "permissions": { "title": "Funksjonsnivå-tillatelser", "subtitle": "module.function.action-rutenett — nektet som standard", "columns": { "key": "Tillatelsesnøkkel", "module": "Modul", "function": "Funksjon", "action": "Handling", "description": "Beskrivelse" } },
-  "memory": { "title": "Prosjektminne", "subtitle": "Langsiktig prosjektkontekst gruppert etter omfang", "scopes": { "core": "Kjerne", "business": "Forretning", "technical": "Teknisk", "design": "Design", "legal": "Juridisk", "note": "Notat" } },
-  "decisions": { "title": "Arkitekturbeslutninger", "subtitle": "Uforanderlige beslutninger koblet til én eller flere moduler", "columns": { "code": "Kode", "title": "Tittel", "status": "Status", "modules": "Tilknyttede moduler", "date": "Dato" } },
-  "modules": { "title": "Prosjektmoduler", "subtitle": "Livssyklustilstand og synlighet per modul", "categoryAll": "Alle kategorier", "columns": { "key": "Nøkkel", "name": "Navn", "state": "Tilstand", "visibility": "Synlighet", "category": "Kategori", "phase": "Fase", "dependsOn": "Avhenger av" }, "states": { "planned": "Planlagt", "in_design": "Under design", "in_dev": "Under utvikling", "in_test": "Under testing", "live": "Live", "deprecated": "Avviklet", "archived": "Arkivert" }, "visibility": { "public": "Offentlig", "internal": "Intern", "hidden": "Skjult" }, "categories": { "foundation": "Grunnlag", "registry": "Register", "profile": "Profil", "platform": "Plattform", "portal": "Portal", "compliance": "Etterlevelse" }, "catalog": { "identity": { "name": "Identitet & RBAC", "description": "Globalt identitetsregister, sesjoner, invitasjoner." }, "audit": { "name": "Uforanderlig revisjon", "description": "Append-only, hash-kjedet hendelseslogg." }, "project": { "name": "Prosjektminne & ADR", "description": "Langsiktig kontekst og arkitekturbeslutninger." }, "rbac": { "name": "Roller & tillatelser", "description": "Funksjonsnivå-tillatelser og roller." }, "taxonomy": { "name": "Universell taksonomi", "description": "Delte kategorier, tagger, land, kjøretøytyper." }, "federation": { "name": "Føderasjonsregister", "description": "Klarerte peers og føderasjonskoblinger." }, "fields": { "name": "Dynamisk feltregister", "description": "Versjonerte, reviderte, oversettbare feltobjekter (EAV)." }, "ai": { "name": "AI-register", "description": "Leverandører, modeller og rutingsregler." }, "knowledge": { "name": "Kunnskapskart", "description": "Krav ↔ beslutning ↔ modul ↔ minne graf." }, "translation": { "name": "Oversettelsesmotor", "description": "Menneskelig + AI-oversettelse cache og arbeidsflyt." }, "profile_engine": { "name": "Universell profilmotor", "description": "Felles profilsubstrat for hver BBS-enhet." }, "profile_user": { "name": "Brukerprofil", "description": "Medlemsprofiltype-utvidelse." }, "profile_vehicle": { "name": "Kjøretøyprofil", "description": "Hot rods, kustoms, sykler — motor, build, galleri." }, "profile_club": { "name": "Klubbprofil", "description": "Klubber, chapters, medlemmer." }, "profile_event": { "name": "Arrangementsprofil", "description": "Meets, shows, races — program, sted." }, "profile_business": { "name": "Bedriftsprofil", "description": "Kommersiell enhets-basis." }, "profile_workshop": { "name": "Verkstedprofil", "description": "Bygge-verksteder, fabrikatorer, tjenester." }, "profile_shop": { "name": "Butikkprofil", "description": "Deler og merch-forhandlere." }, "profile_artist": { "name": "Artistprofil", "description": "Pinstripers, malere, fotografer." }, "profile_performer": { "name": "Utøverprofil", "description": "Band, DJ-er, stunt-utøvere." }, "files": { "name": "Filer & lagring", "description": "Objektlagring, opplastinger, mediehåndtering." }, "notifications": { "name": "Varsler", "description": "E-post, in-app, føderasjonsvarsler." }, "search": { "name": "Søk", "description": "Cross-entity søk over profiler og felt." }, "moderation": { "name": "Moderering", "description": "Rapporter, gjennomgangskøer, handlingsrevisjon." }, "analytics": { "name": "Analyse", "description": "Aggregerte, personvern-bevisste bruksmetrikker." }, "billing": { "name": "Fakturering", "description": "Abonnementer og fakturering for bedrifter." }, "support": { "name": "Support (BBS-portal)", "description": "Helpdesk for BBS-økosystemet." }, "travel": { "name": "Travel (BBS-portal)", "description": "Tur- og arrangementsplanlegging." }, "media": { "name": "Media (BBS-portal)", "description": "Foto/video utstilling." }, "garage": { "name": "Garage (BBS-portal)", "description": "Kjøretøybygg, verksteder, deler." }, "gdpr": { "name": "GDPR-motor", "description": "Samtykke, redaksjon, eksport- og slett-arbeidsflyt." }, "consent": { "name": "Samtykke", "description": "Per-formål samtykke sporing og tilbakekalling." } } },
-  "audit": { "title": "Uforanderlig revisjonslogg", "subtitle": "Append-only hendelser med hash-kjede-integritet", "verify": "Verifiser hash-kjede", "verified": "Hash-kjeden er intakt", "broken": "Hash-kjeden er brutt ved rad #{{row}}", "tenantFilter": "Tenant", "tenantAll": "Alle tenants", "columns": { "ts": "Tidsstempel", "tenant": "Tenant", "actor": "Aktør", "action": "Handling", "target": "Mål", "hash": "Hash" } },
-  "registry": { "taxonomy": { "title": "Universal Taxonomy Engine", "subtitle": "Felles kategorier, etiketter, kjøretøytyper, land, språk" }, "federation": { "title": "Federation Registry", "subtitle": "Klarerte peers for Federation Bridge Protocol", "peers": "Peers", "linkedUsers": "Tilkoblede brukere", "cols": { "user": "Lokal bruker", "fedUid": "Federation UID", "source": "Kilde", "origin": "Opprinnelse", "sync": "Sync-status" } }, "ai": { "title": "AI-register", "subtitle": "Leverandører, modeller og rutingsregler (v0.1: dummy-leverandør)" }, "knowledge": { "title": "Knowledge Map Registry", "subtitle": "Krav ↔ beslutning ↔ modul ↔ minne-graf" }, "fields": { "title": "Dynamisk feltregister", "subtitle": "Versjonerte, reviderte, oversettbare, tillatelsesstyrte feltobjekter (EAV)", "new": "Nytt felt", "newSubtitle": "Opprett en feltdefinisjon (v1)", "lifecycle": "Livssyklus", "lifecycleSubtitle": "Statusfordeling og overganger — change_reason påkrevd", "eavInspector": "EAV-inspektør", "versionDiff": "Versjonsdiff", "previousVersion": "Forrige", "transitions": "Overganger", "ownerModule": "Eier-modul", "multivalue": "Flerverdi", "required": "Påkrevd", "labelEn": "Etikett (en)", "labelHu": "Etikett (hu)", "entityBindings": "Entitetsbindinger", "referenceTarget": "Referansemål (entitetstype)", "referenceHint": "Krysentitetsreferanse er tenant-bevisst og tillatelsessjekket ved lesing.", "allNamespaces": "Alle navneområder", "allStatuses": "Alle statuser", "reasonPrompt": "Endringsårsak?", "cacheNote": "Løst (bufret)", "cols": { "key": "Nøkkel", "namespace": "Navneområde", "label": "Etikett", "dataType": "Type", "status": "Status", "version": "Versjon", "usage": "# verdier" }, "tabs": { "overview": "Oversikt", "versions": "Versjoner", "translations": "Oversettelser", "permissions": "Tillatelser", "taxonomy": "Taksonomi", "entities": "Entiteter", "audit": "Revisjon", "values": "Verdier" } } },
-  "profile": { "title": "Min profil", "subtitle": "Universal Profile Engine — utvidelser per profiltype", "types": { "developer": "Utvikler", "member": "Medlem", "business": "Bedrift", "club": "Klubb", "event": "Arrangement", "vehicle": "Kjøretøy", "workshop": "Verksted", "shop": "Butikk", "artist": "Artist", "performer": "Utøver" } },
-  "publicProfile": { "notFound": "Profil ikke funnet", "hidden": "Denne profilen er ikke offentlig synlig" },
-  "login": { "title": "Logg inn", "subtitle": "Kun via invitasjon — argon2id-klasse hashing i produksjon", "username": "Brukernavn", "password": "Passord", "submit": "Logg inn", "previewHint": "Forhåndsvisning: bruk demo / demo" },
-  "stubs": { "title": "{{module}}-modul", "description": "Stub — del av langsiktig BBS-portalplan, ikke implementert i B-1." }
+  "app": {
+    "name": "BBS AI Builder",
+    "tagline": "Konstitusjonell byggeplattform for BBS-økosystemet"
+  },
+  "nav": {
+    "dashboard": "Dashbord",
+    "users": "Brukere",
+    "roles": "Roller",
+    "permissions": "Tillatelser",
+    "memory": "Prosjektminne",
+    "decisions": "Beslutninger (ADR)",
+    "modules": "Moduler",
+    "audit": "Revisjonslogg",
+    "registry": "Registre",
+    "taxonomy": "Taksonomi",
+    "fields": "Feltregister",
+    "federation": "Føderasjon",
+    "ai": "AI-register",
+    "knowledge": "Kunnskapskart",
+    "profile": "Min profil",
+    "stubs": "Modul-stubber",
+    "support": "Support",
+    "travel": "Reise",
+    "media": "Media",
+    "garage": "Garasje",
+    "logout": "Logg ut",
+    "login": "Logg inn"
+  },
+  "common": {
+    "search": "Søk",
+    "create": "Opprett",
+    "edit": "Rediger",
+    "delete": "Slett",
+    "save": "Lagre",
+    "cancel": "Avbryt",
+    "loading": "Laster…",
+    "empty": "Ingenting her ennå",
+    "comingInB2": "Full implementasjon kommer i B-2+",
+    "previewMode": "Forhåndsvisning — data er kun i minnet",
+    "language": "Språk",
+    "yes": "Ja",
+    "no": "Nei",
+    "back": "Tilbake"
+  },
+  "dashboard": {
+    "title": "Byggerens dashbord",
+    "subtitle": "Prosjektets livssyklus, minne og beslutninger på ett sted",
+    "stats": {
+      "users": "Identiteter",
+      "modules": "Moduler",
+      "decisions": "Beslutninger",
+      "memoryEntries": "Minneoppføringer"
+    }
+  },
+  "users": {
+    "title": "Identitetsregister",
+    "subtitle": "Global Identity Registry — én sannhetskilde for hele BBS-økosystemet",
+    "columns": {
+      "username": "Brukernavn",
+      "email": "E-post",
+      "type": "Profiltype",
+      "roles": "Roller",
+      "status": "Status"
+    },
+    "invisible": "Skjult (SuperAdmin)"
+  },
+  "roles": {
+    "title": "Roller og RBAC",
+    "subtitle": "Rollekatalog og tillatelses-tilordninger"
+  },
+  "permissions": {
+    "title": "Funksjonsnivå-tillatelser",
+    "subtitle": "module.function.action-rutenett — nektet som standard",
+    "columns": {
+      "key": "Tillatelsesnøkkel",
+      "module": "Modul",
+      "function": "Funksjon",
+      "action": "Handling",
+      "description": "Beskrivelse"
+    }
+  },
+  "memory": {
+    "title": "Prosjektminne",
+    "subtitle": "Langsiktig prosjektkontekst gruppert etter omfang",
+    "scopes": {
+      "core": "Kjerne",
+      "business": "Forretning",
+      "technical": "Teknisk",
+      "design": "Design",
+      "legal": "Juridisk",
+      "note": "Notat"
+    }
+  },
+  "decisions": {
+    "title": "Arkitekturbeslutninger",
+    "subtitle": "Uforanderlige beslutninger koblet til én eller flere moduler",
+    "columns": {
+      "code": "Kode",
+      "title": "Tittel",
+      "status": "Status",
+      "modules": "Tilknyttede moduler",
+      "date": "Dato"
+    }
+  },
+  "modules": {
+    "title": "Prosjektmoduler",
+    "subtitle": "Livssyklustilstand og synlighet per modul",
+    "categoryAll": "Alle kategorier",
+    "columns": {
+      "key": "Nøkkel",
+      "name": "Navn",
+      "state": "Tilstand",
+      "visibility": "Synlighet",
+      "category": "Kategori",
+      "phase": "Fase",
+      "dependsOn": "Avhenger av"
+    },
+    "states": {
+      "planned": "Planlagt",
+      "in_design": "Under design",
+      "in_dev": "Under utvikling",
+      "in_test": "Under testing",
+      "live": "Live",
+      "deprecated": "Avviklet",
+      "archived": "Arkivert"
+    },
+    "visibility": {
+      "public": "Offentlig",
+      "internal": "Intern",
+      "hidden": "Skjult"
+    },
+    "categories": {
+      "foundation": "Grunnlag",
+      "registry": "Register",
+      "profile": "Profil",
+      "platform": "Plattform",
+      "portal": "Portal",
+      "compliance": "Etterlevelse"
+    },
+    "catalog": {
+      "identity": {
+        "name": "Identitet & RBAC",
+        "description": "Globalt identitetsregister, sesjoner, invitasjoner."
+      },
+      "audit": {
+        "name": "Uforanderlig revisjon",
+        "description": "Append-only, hash-kjedet hendelseslogg."
+      },
+      "project": {
+        "name": "Prosjektminne & ADR",
+        "description": "Langsiktig kontekst og arkitekturbeslutninger."
+      },
+      "rbac": {
+        "name": "Roller & tillatelser",
+        "description": "Funksjonsnivå-tillatelser og roller."
+      },
+      "taxonomy": {
+        "name": "Universell taksonomi",
+        "description": "Delte kategorier, tagger, land, kjøretøytyper."
+      },
+      "federation": {
+        "name": "Føderasjonsregister",
+        "description": "Klarerte peers og føderasjonskoblinger."
+      },
+      "fields": {
+        "name": "Dynamisk feltregister",
+        "description": "Versjonerte, reviderte, oversettbare feltobjekter (EAV)."
+      },
+      "ai": {
+        "name": "AI-register",
+        "description": "Leverandører, modeller og rutingsregler."
+      },
+      "knowledge": {
+        "name": "Kunnskapskart",
+        "description": "Krav ↔ beslutning ↔ modul ↔ minne graf."
+      },
+      "translation": {
+        "name": "Oversettelsesmotor",
+        "description": "Menneskelig + AI-oversettelse cache og arbeidsflyt."
+      },
+      "profile_engine": {
+        "name": "Universell profilmotor",
+        "description": "Felles profilsubstrat for hver BBS-enhet."
+      },
+      "profile_user": {
+        "name": "Brukerprofil",
+        "description": "Medlemsprofiltype-utvidelse."
+      },
+      "profile_vehicle": {
+        "name": "Kjøretøyprofil",
+        "description": "Hot rods, kustoms, sykler — motor, build, galleri."
+      },
+      "profile_club": {
+        "name": "Klubbprofil",
+        "description": "Klubber, chapters, medlemmer."
+      },
+      "profile_event": {
+        "name": "Arrangementsprofil",
+        "description": "Meets, shows, races — program, sted."
+      },
+      "profile_business": {
+        "name": "Bedriftsprofil",
+        "description": "Kommersiell enhets-basis."
+      },
+      "profile_workshop": {
+        "name": "Verkstedprofil",
+        "description": "Bygge-verksteder, fabrikatorer, tjenester."
+      },
+      "profile_shop": {
+        "name": "Butikkprofil",
+        "description": "Deler og merch-forhandlere."
+      },
+      "profile_artist": {
+        "name": "Artistprofil",
+        "description": "Pinstripers, malere, fotografer."
+      },
+      "profile_performer": {
+        "name": "Utøverprofil",
+        "description": "Band, DJ-er, stunt-utøvere."
+      },
+      "files": {
+        "name": "Filer & lagring",
+        "description": "Objektlagring, opplastinger, mediehåndtering."
+      },
+      "notifications": {
+        "name": "Varsler",
+        "description": "E-post, in-app, føderasjonsvarsler."
+      },
+      "search": {
+        "name": "Søk",
+        "description": "Cross-entity søk over profiler og felt."
+      },
+      "moderation": {
+        "name": "Moderering",
+        "description": "Rapporter, gjennomgangskøer, handlingsrevisjon."
+      },
+      "analytics": {
+        "name": "Analyse",
+        "description": "Aggregerte, personvern-bevisste bruksmetrikker."
+      },
+      "billing": {
+        "name": "Fakturering",
+        "description": "Abonnementer og fakturering for bedrifter."
+      },
+      "support": {
+        "name": "Support (BBS-portal)",
+        "description": "Helpdesk for BBS-økosystemet."
+      },
+      "travel": {
+        "name": "Travel (BBS-portal)",
+        "description": "Tur- og arrangementsplanlegging."
+      },
+      "media": {
+        "name": "Media (BBS-portal)",
+        "description": "Foto/video utstilling."
+      },
+      "garage": {
+        "name": "Garage (BBS-portal)",
+        "description": "Kjøretøybygg, verksteder, deler."
+      },
+      "gdpr": {
+        "name": "GDPR-motor",
+        "description": "Samtykke, redaksjon, eksport- og slett-arbeidsflyt."
+      },
+      "consent": {
+        "name": "Samtykke",
+        "description": "Per-formål samtykke sporing og tilbakekalling."
+      }
+    },
+    "lifecycle": {
+      "reasonPrompt": "Begrunnelse for tilstandsendring?",
+      "reasonRequired": "change_reason er påkrevd ved tilstandsendring."
+    },
+    "detail": {
+      "viewFields": "Vis felt",
+      "dependencies": "Direkte avhengigheter",
+      "transitiveDeps": "Transitive avh.",
+      "bindingDetails": "Binding-detaljer",
+      "fieldsSubtitle": "Felt under namespace eid eller tillatt for denne modulen."
+    },
+    "namespaces": {
+      "title": "Felt-namespaces",
+      "owned": "Eid",
+      "allowed": "Tillatt",
+      "required": "Påkrevd",
+      "reserved": "Reservert (admin)",
+      "addBinding": "Legg til binding",
+      "revoke": "Tilbakekall",
+      "kindLabel": "Type",
+      "kindPrompt": "Binding-type?",
+      "namespacePrompt": "Namespace (e.g. vehicle or vehicle.engine)?",
+      "reasonPrompt": "change_reason (påkrevd)?",
+      "grantReason": "Begrunnelse",
+      "access": "Tilgang"
+    }
+  },
+  "audit": {
+    "title": "Uforanderlig revisjonslogg",
+    "subtitle": "Append-only hendelser med hash-kjede-integritet",
+    "verify": "Verifiser hash-kjede",
+    "verified": "Hash-kjeden er intakt",
+    "broken": "Hash-kjeden er brutt ved rad #{{row}}",
+    "tenantFilter": "Tenant",
+    "tenantAll": "Alle tenants",
+    "columns": {
+      "ts": "Tidsstempel",
+      "tenant": "Tenant",
+      "actor": "Aktør",
+      "action": "Handling",
+      "target": "Mål",
+      "hash": "Hash"
+    }
+  },
+  "registry": {
+    "taxonomy": {
+      "title": "Universal Taxonomy Engine",
+      "subtitle": "Felles kategorier, etiketter, kjøretøytyper, land, språk"
+    },
+    "federation": {
+      "title": "Federation Registry",
+      "subtitle": "Klarerte peers for Federation Bridge Protocol",
+      "peers": "Peers",
+      "linkedUsers": "Tilkoblede brukere",
+      "cols": {
+        "user": "Lokal bruker",
+        "fedUid": "Federation UID",
+        "source": "Kilde",
+        "origin": "Opprinnelse",
+        "sync": "Sync-status"
+      }
+    },
+    "ai": {
+      "title": "AI-register",
+      "subtitle": "Leverandører, modeller og rutingsregler (v0.1: dummy-leverandør)"
+    },
+    "knowledge": {
+      "title": "Knowledge Map Registry",
+      "subtitle": "Krav ↔ beslutning ↔ modul ↔ minne-graf"
+    },
+    "fields": {
+      "title": "Dynamisk feltregister",
+      "subtitle": "Versjonerte, reviderte, oversettbare, tillatelsesstyrte feltobjekter (EAV)",
+      "new": "Nytt felt",
+      "newSubtitle": "Opprett en feltdefinisjon (v1)",
+      "lifecycle": "Livssyklus",
+      "lifecycleSubtitle": "Statusfordeling og overganger — change_reason påkrevd",
+      "eavInspector": "EAV-inspektør",
+      "versionDiff": "Versjonsdiff",
+      "previousVersion": "Forrige",
+      "transitions": "Overganger",
+      "ownerModule": "Eier-modul",
+      "multivalue": "Flerverdi",
+      "required": "Påkrevd",
+      "labelEn": "Etikett (en)",
+      "labelHu": "Etikett (hu)",
+      "entityBindings": "Entitetsbindinger",
+      "referenceTarget": "Referansemål (entitetstype)",
+      "referenceHint": "Krysentitetsreferanse er tenant-bevisst og tillatelsessjekket ved lesing.",
+      "allNamespaces": "Alle navneområder",
+      "allStatuses": "Alle statuser",
+      "reasonPrompt": "Endringsårsak?",
+      "cacheNote": "Løst (bufret)",
+      "cols": {
+        "key": "Nøkkel",
+        "namespace": "Navneområde",
+        "label": "Etikett",
+        "dataType": "Type",
+        "status": "Status",
+        "version": "Versjon",
+        "usage": "# verdier",
+        "ownerModule": "Eier-modul"
+      },
+      "tabs": {
+        "overview": "Oversikt",
+        "versions": "Versjoner",
+        "translations": "Oversettelser",
+        "permissions": "Tillatelser",
+        "taxonomy": "Taksonomi",
+        "entities": "Entiteter",
+        "audit": "Revisjon",
+        "values": "Verdier"
+      },
+      "namespaceUsage": {
+        "title": "Namespace-bruk",
+        "owner": "Eier",
+        "usedBy": "Brukt av",
+        "grantReason": "Begrunnelse"
+      }
+    }
+  },
+  "profile": {
+    "title": "Min profil",
+    "subtitle": "Universal Profile Engine — utvidelser per profiltype",
+    "types": {
+      "developer": "Utvikler",
+      "member": "Medlem",
+      "business": "Bedrift",
+      "club": "Klubb",
+      "event": "Arrangement",
+      "vehicle": "Kjøretøy",
+      "workshop": "Verksted",
+      "shop": "Butikk",
+      "artist": "Artist",
+      "performer": "Utøver"
+    }
+  },
+  "publicProfile": {
+    "notFound": "Profil ikke funnet",
+    "hidden": "Denne profilen er ikke offentlig synlig"
+  },
+  "login": {
+    "title": "Logg inn",
+    "subtitle": "Kun via invitasjon — argon2id-klasse hashing i produksjon",
+    "username": "Brukernavn",
+    "password": "Passord",
+    "submit": "Logg inn",
+    "previewHint": "Forhåndsvisning: bruk demo / demo"
+  },
+  "stubs": {
+    "title": "{{module}}-modul",
+    "description": "Stub — del av langsiktig BBS-portalplan, ikke implementert i B-1."
+  }
 }
