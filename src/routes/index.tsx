@@ -1,29 +1,49 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
+
+import { BuilderShell, PageHeader } from "@/components/builder/BuilderShell";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { store } from "@/lib/mock-store";
+import { filterInvisible } from "@/lib/rbac";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Your App" },
-      { name: "description", content: "Replace this with a one-sentence description of your app." },
-      { property: "og:title", content: "Your App" },
-      { property: "og:description", content: "Replace this with a one-sentence description of your app." },
+      { title: "BBS AI Builder — Dashboard" },
+      { name: "description", content: "Constitutional builder platform for the BBS ecosystem." },
     ],
   }),
-  component: Index,
+  component: DashboardPage,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+function DashboardPage() {
+  const { t } = useTranslation();
+  const stats = [
+    { key: "users", value: filterInvisible(store.users, null).length, to: "/users" },
+    { key: "modules", value: store.modules.length, to: "/modules" },
+    { key: "decisions", value: store.decisions.length, to: "/decisions" },
+    { key: "memoryEntries", value: store.memory.length, to: "/memory" },
+  ] as const;
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <BuilderShell title={t("dashboard.title")} subtitle={t("dashboard.subtitle")}>
+      <PageHeader title={t("dashboard.title")} subtitle={t("dashboard.subtitle")} />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {stats.map((s) => (
+          <Link key={s.key} to={s.to}>
+            <Card className="hover:bg-accent/40 transition-colors">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm text-muted-foreground">
+                  {t(`dashboard.stats.${s.key}`)}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-semibold">{s.value}</div>
+              </CardContent>
+            </Card>
+          </Link>
+        ))}
+      </div>
+    </BuilderShell>
   );
 }
