@@ -1,6 +1,6 @@
 // Lazy DB client. mysql2 is loaded ONLY when DATABASE_URL is configured.
 // In preview / Cloudflare Workers, mysql2 is never imported so the bundle stays clean.
-import { getServerEnv } from "./env";
+import { getServerEnv } from "../env";
 
 type DrizzleDb = unknown;
 let cached: DrizzleDb | null = null;
