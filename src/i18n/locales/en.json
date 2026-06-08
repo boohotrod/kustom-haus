@@ -445,6 +445,7 @@
     },
     "fieldNotFound": "Field not found.",
     "versionNotFound": "Version not found.",
-    "moduleNotFound": "Module not found."
+    "moduleNotFound": "Module not found.",
+    "title": "Error"
   }
 }
