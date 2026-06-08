@@ -12,10 +12,11 @@ import { fieldLabel, resolveFieldPermissions } from "@/lib/field-registry";
 import { findOwner, namespaceMatches } from "@/lib/namespace-ownership";
 
 export const Route = createFileRoute("/registry/fields/$fieldId")({
-  head: () => ({ meta: [{ title: "BBS AI Builder — Field detail" }] }),
-  notFoundComponent: () => (
-    <BuilderShell title="404"><div className="text-sm">Field not found.</div></BuilderShell>
-  ),
+  head: () => ({ meta: [{ title: "BBS AI Builder — Mező részletek" }] }),
+  notFoundComponent: () => {
+    const { t } = useTranslation();
+    return <BuilderShell title="404"><div className="text-sm">{t("errors.fieldNotFound")}</div></BuilderShell>;
+  },
   errorComponent: ({ error }) => (
     <BuilderShell title="Error"><div className="text-sm text-destructive">{String(error)}</div></BuilderShell>
   ),

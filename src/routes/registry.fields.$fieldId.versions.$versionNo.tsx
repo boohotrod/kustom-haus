@@ -8,8 +8,11 @@ import { Badge } from "@/components/ui/badge";
 import { store } from "@/lib/mock-store";
 
 export const Route = createFileRoute("/registry/fields/$fieldId/versions/$versionNo")({
-  head: () => ({ meta: [{ title: "BBS AI Builder — Field version diff" }] }),
-  notFoundComponent: () => <BuilderShell title="404"><div className="text-sm">Version not found.</div></BuilderShell>,
+  head: () => ({ meta: [{ title: "BBS AI Builder — Mező verzió diff" }] }),
+  notFoundComponent: () => {
+    const { t } = useTranslation();
+    return <BuilderShell title="404"><div className="text-sm">{t("errors.versionNotFound")}</div></BuilderShell>;
+  },
   errorComponent: ({ error }) => <BuilderShell title="Error"><div className="text-sm text-destructive">{String(error)}</div></BuilderShell>,
   loader: ({ params }) => {
     const f = store.fieldDefinitions.find((x) => x.id === params.fieldId);
