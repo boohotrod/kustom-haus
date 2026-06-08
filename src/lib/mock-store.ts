@@ -30,6 +30,19 @@ export type MockDecision = { id: string; code: string; title: string; status: st
 export type MockModule = { id: string; key: string; name: string; state: ModuleState; visibility: ModuleVisibility };
 export type MockTaxonomy = { id: string; scope: string; key: string; label: string };
 export type MockPeer = { id: string; peerKey: string; baseUrl: string; status: "pending" | "active" | "suspended" };
+export type MockFederationUser = {
+  id: string;
+  userId: string;
+  peerId: string;
+  bbsFederationUserId: string;
+  sourceSystemId: string;
+  sourceTenantId: string;
+  sourceRecordId: string;
+  dataOrigin: "local" | "imported" | "synced" | "external";
+  syncStatus: "local" | "imported" | "synced" | "pending" | "conflict" | "archived_remote" | "disconnected";
+  syncCreatedAt: string;
+  syncUpdatedAt: string;
+};
 export type MockAiProvider = { id: string; key: string; kind: string; status: "dummy" | "active" | "disabled" };
 export type MockKnowledgeNode = { id: string; kind: string; title: string };
 
