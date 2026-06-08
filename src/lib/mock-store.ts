@@ -1,6 +1,6 @@
 // In-memory mock store for preview mode. Production reads from MySQL via Drizzle.
 // Every screen reads/writes through this store so all UI features are wired end-to-end.
-import { appendAudit, type AuditEvent } from "./audit";
+import { appendAudit, appendAuditCheckpoint, type AuditEvent } from "./audit";
 import type { ProfileType } from "@/db/schema/identity/profiles";
 import type { ModuleState, ModuleVisibility } from "@/db/schema/project/modules";
 import type { MemoryScope } from "@/db/schema/project/memory";
@@ -124,6 +124,7 @@ export const store = {
   ] as MockTaxonomy[],
 
   peers: [] as MockPeer[],
+  federationUsers: [] as MockFederationUser[],
   aiProviders: [
     { id: uid(), key: "dummy_llm", kind: "llm", status: "dummy" },
     { id: uid(), key: "dummy_translate", kind: "translate", status: "dummy" },
@@ -148,11 +149,50 @@ for (const p of store.permissions) {
   }
 }
 
-// Seed audit chain.
-appendAudit(store.audit, { actorId: null, action: "system.bootstrap", targetType: "project", targetId: "bbs-builder", payload: { version: "v0.2", scope: "B-0/B-1" } });
-appendAudit(store.audit, { actorId: superId, action: "identity.user.created", targetType: "user", targetId: devId, payload: { username: "demo" } });
-appendAudit(store.audit, { actorId: superId, action: "identity.user.created", targetType: "user", targetId: memberId, payload: { username: "ferenc" } });
-appendAudit(store.audit, { actorId: devId, action: "project.module.created", targetType: "module", targetId: "identity", payload: { state: "in_dev" } });
+// Seed audit chain. B-2.1: payloads now include tenantKey; preview chain starts on v2 schema.
+appendAuditCheckpoint(store.audit, "preview-init");
+appendAudit(store.audit, { actorId: null, tenantKey: "builder", action: "system.bootstrap", targetType: "project", targetId: "bbs-builder", payload: { version: "v0.2", scope: "B-0/B-1+B-2.1" } });
+appendAudit(store.audit, { actorId: superId, tenantKey: "builder", action: "identity.user.created", targetType: "user", targetId: devId, payload: { username: "demo" } });
+appendAudit(store.audit, { actorId: superId, tenantKey: "builder", action: "identity.user.created", targetType: "user", targetId: memberId, payload: { username: "ferenc" } });
+appendAudit(store.audit, { actorId: devId, tenantKey: "builder", action: "project.module.created", targetType: "module", targetId: "identity", payload: { state: "in_dev" } });
+
+// B-2.1: seed two example federation peers + linked users so the Federation Registry screen is populated.
+const peerHotrod = uid();
+const peerTravel = uid();
+store.peers.push(
+  { id: peerHotrod, peerKey: "hotrod.network", baseUrl: "https://hotrod.network", status: "active" },
+  { id: peerTravel, peerKey: "travel.app", baseUrl: "https://travel.app", status: "pending" },
+);
+store.federationUsers.push(
+  {
+    id: uid(),
+    userId: memberId,
+    peerId: peerHotrod,
+    bbsFederationUserId: "fed_hr_000123",
+    sourceSystemId: "hotrod.network",
+    sourceTenantId: "hr-main",
+    sourceRecordId: "u_4711",
+    dataOrigin: "synced",
+    syncStatus: "synced",
+    syncCreatedAt: new Date().toISOString(),
+    syncUpdatedAt: new Date().toISOString(),
+  },
+  {
+    id: uid(),
+    userId: devId,
+    peerId: peerTravel,
+    bbsFederationUserId: "fed_tr_000088",
+    sourceSystemId: "travel.app",
+    sourceTenantId: "tr-default",
+    sourceRecordId: "u_88",
+    dataOrigin: "imported",
+    syncStatus: "pending",
+    syncCreatedAt: new Date().toISOString(),
+    syncUpdatedAt: new Date().toISOString(),
+  },
+);
+appendAudit(store.audit, { actorId: superId, tenantKey: "builder", action: "federation.peer.registered", targetType: "peer", targetId: peerHotrod, payload: { peerKey: "hotrod.network" } });
+appendAudit(store.audit, { actorId: superId, tenantKey: "builder", action: "federation.user.linked", targetType: "user", targetId: memberId, payload: { peer: "hotrod.network", federationUserId: "fed_hr_000123" } });
 
 export function currentUser(): MockUser | null {
   return store.users.find((u) => u.id === store.currentUserId) ?? null;
