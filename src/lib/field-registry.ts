@@ -136,6 +136,22 @@ export function canTransition(from: FieldStatus, to: FieldStatus): boolean {
   return FORWARD[from]?.includes(to) ?? false;
 }
 
+/**
+ * B-2.4 lifecycle hardening — every field status change MUST carry a
+ * non-empty change_reason. Throws if reason is missing/blank or the
+ * transition is illegal. Returns the trimmed reason on success.
+ */
+export function assertFieldTransition(
+  from: FieldStatus,
+  to: FieldStatus,
+  reason: string | null | undefined,
+): string {
+  if (!canTransition(from, to)) throw new Error(`Illegal field transition ${from} → ${to}`);
+  const trimmed = (reason ?? "").trim();
+  if (!trimmed) throw new Error("change_reason is required for field.status.changed");
+  return trimmed;
+}
+
 // ---------------------------------------------------------------------------
 // Permission cache — simple in-memory memo (B-2.2 decision #4). Invalidated on
 // audit events tagged `field.permission.*` / `field.role.*`. No Redis, no
