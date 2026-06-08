@@ -28,10 +28,12 @@ import { Route as RegistryTaxonomyRouteImport } from './routes/registry.taxonomy
 import { Route as RegistryKnowledgeRouteImport } from './routes/registry.knowledge'
 import { Route as RegistryFederationRouteImport } from './routes/registry.federation'
 import { Route as RegistryAiRouteImport } from './routes/registry.ai'
+import { Route as ModulesModuleKeyRouteImport } from './routes/modules.$moduleKey'
 import { Route as RegistryFieldsIndexRouteImport } from './routes/registry.fields.index'
 import { Route as RegistryFieldsNewRouteImport } from './routes/registry.fields.new'
 import { Route as RegistryFieldsLifecycleRouteImport } from './routes/registry.fields.lifecycle'
 import { Route as RegistryFieldsFieldIdRouteImport } from './routes/registry.fields.$fieldId'
+import { Route as ModulesModuleKeyFieldsRouteImport } from './routes/modules.$moduleKey.fields'
 import { Route as RegistryFieldsFieldIdValuesRouteImport } from './routes/registry.fields.$fieldId.values'
 import { Route as RegistryFieldsFieldIdVersionsVersionNoRouteImport } from './routes/registry.fields.$fieldId.versions.$versionNo'
 
@@ -130,6 +132,11 @@ const RegistryAiRoute = RegistryAiRouteImport.update({
   path: '/registry/ai',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ModulesModuleKeyRoute = ModulesModuleKeyRouteImport.update({
+  id: '/$moduleKey',
+  path: '/$moduleKey',
+  getParentRoute: () => ModulesRoute,
+} as any)
 const RegistryFieldsIndexRoute = RegistryFieldsIndexRouteImport.update({
   id: '/registry/fields/',
   path: '/registry/fields/',
@@ -150,6 +157,11 @@ const RegistryFieldsFieldIdRoute = RegistryFieldsFieldIdRouteImport.update({
   path: '/registry/fields/$fieldId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ModulesModuleKeyFieldsRoute = ModulesModuleKeyFieldsRouteImport.update({
+  id: '/fields',
+  path: '/fields',
+  getParentRoute: () => ModulesModuleKeyRoute,
+} as any)
 const RegistryFieldsFieldIdValuesRoute =
   RegistryFieldsFieldIdValuesRouteImport.update({
     id: '/values',
@@ -169,11 +181,12 @@ export interface FileRoutesByFullPath {
   '/decisions': typeof DecisionsRoute
   '/login': typeof LoginRoute
   '/memory': typeof MemoryRoute
-  '/modules': typeof ModulesRoute
+  '/modules': typeof ModulesRouteWithChildren
   '/permissions': typeof PermissionsRoute
   '/profile': typeof ProfileRoute
   '/roles': typeof RolesRoute
   '/users': typeof UsersRoute
+  '/modules/$moduleKey': typeof ModulesModuleKeyRouteWithChildren
   '/registry/ai': typeof RegistryAiRoute
   '/registry/federation': typeof RegistryFederationRoute
   '/registry/knowledge': typeof RegistryKnowledgeRoute
@@ -183,6 +196,7 @@ export interface FileRoutesByFullPath {
   '/stubs/support': typeof StubsSupportRoute
   '/stubs/travel': typeof StubsTravelRoute
   '/u/$username': typeof UUsernameRoute
+  '/modules/$moduleKey/fields': typeof ModulesModuleKeyFieldsRoute
   '/registry/fields/$fieldId': typeof RegistryFieldsFieldIdRouteWithChildren
   '/registry/fields/lifecycle': typeof RegistryFieldsLifecycleRoute
   '/registry/fields/new': typeof RegistryFieldsNewRoute
@@ -196,11 +210,12 @@ export interface FileRoutesByTo {
   '/decisions': typeof DecisionsRoute
   '/login': typeof LoginRoute
   '/memory': typeof MemoryRoute
-  '/modules': typeof ModulesRoute
+  '/modules': typeof ModulesRouteWithChildren
   '/permissions': typeof PermissionsRoute
   '/profile': typeof ProfileRoute
   '/roles': typeof RolesRoute
   '/users': typeof UsersRoute
+  '/modules/$moduleKey': typeof ModulesModuleKeyRouteWithChildren
   '/registry/ai': typeof RegistryAiRoute
   '/registry/federation': typeof RegistryFederationRoute
   '/registry/knowledge': typeof RegistryKnowledgeRoute
@@ -210,6 +225,7 @@ export interface FileRoutesByTo {
   '/stubs/support': typeof StubsSupportRoute
   '/stubs/travel': typeof StubsTravelRoute
   '/u/$username': typeof UUsernameRoute
+  '/modules/$moduleKey/fields': typeof ModulesModuleKeyFieldsRoute
   '/registry/fields/$fieldId': typeof RegistryFieldsFieldIdRouteWithChildren
   '/registry/fields/lifecycle': typeof RegistryFieldsLifecycleRoute
   '/registry/fields/new': typeof RegistryFieldsNewRoute
@@ -224,11 +240,12 @@ export interface FileRoutesById {
   '/decisions': typeof DecisionsRoute
   '/login': typeof LoginRoute
   '/memory': typeof MemoryRoute
-  '/modules': typeof ModulesRoute
+  '/modules': typeof ModulesRouteWithChildren
   '/permissions': typeof PermissionsRoute
   '/profile': typeof ProfileRoute
   '/roles': typeof RolesRoute
   '/users': typeof UsersRoute
+  '/modules/$moduleKey': typeof ModulesModuleKeyRouteWithChildren
   '/registry/ai': typeof RegistryAiRoute
   '/registry/federation': typeof RegistryFederationRoute
   '/registry/knowledge': typeof RegistryKnowledgeRoute
@@ -238,6 +255,7 @@ export interface FileRoutesById {
   '/stubs/support': typeof StubsSupportRoute
   '/stubs/travel': typeof StubsTravelRoute
   '/u/$username': typeof UUsernameRoute
+  '/modules/$moduleKey/fields': typeof ModulesModuleKeyFieldsRoute
   '/registry/fields/$fieldId': typeof RegistryFieldsFieldIdRouteWithChildren
   '/registry/fields/lifecycle': typeof RegistryFieldsLifecycleRoute
   '/registry/fields/new': typeof RegistryFieldsNewRoute
@@ -258,6 +276,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/roles'
     | '/users'
+    | '/modules/$moduleKey'
     | '/registry/ai'
     | '/registry/federation'
     | '/registry/knowledge'
@@ -267,6 +286,7 @@ export interface FileRouteTypes {
     | '/stubs/support'
     | '/stubs/travel'
     | '/u/$username'
+    | '/modules/$moduleKey/fields'
     | '/registry/fields/$fieldId'
     | '/registry/fields/lifecycle'
     | '/registry/fields/new'
@@ -285,6 +305,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/roles'
     | '/users'
+    | '/modules/$moduleKey'
     | '/registry/ai'
     | '/registry/federation'
     | '/registry/knowledge'
@@ -294,6 +315,7 @@ export interface FileRouteTypes {
     | '/stubs/support'
     | '/stubs/travel'
     | '/u/$username'
+    | '/modules/$moduleKey/fields'
     | '/registry/fields/$fieldId'
     | '/registry/fields/lifecycle'
     | '/registry/fields/new'
@@ -312,6 +334,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/roles'
     | '/users'
+    | '/modules/$moduleKey'
     | '/registry/ai'
     | '/registry/federation'
     | '/registry/knowledge'
@@ -321,6 +344,7 @@ export interface FileRouteTypes {
     | '/stubs/support'
     | '/stubs/travel'
     | '/u/$username'
+    | '/modules/$moduleKey/fields'
     | '/registry/fields/$fieldId'
     | '/registry/fields/lifecycle'
     | '/registry/fields/new'
@@ -335,7 +359,7 @@ export interface RootRouteChildren {
   DecisionsRoute: typeof DecisionsRoute
   LoginRoute: typeof LoginRoute
   MemoryRoute: typeof MemoryRoute
-  ModulesRoute: typeof ModulesRoute
+  ModulesRoute: typeof ModulesRouteWithChildren
   PermissionsRoute: typeof PermissionsRoute
   ProfileRoute: typeof ProfileRoute
   RolesRoute: typeof RolesRoute
@@ -490,6 +514,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegistryAiRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/modules/$moduleKey': {
+      id: '/modules/$moduleKey'
+      path: '/$moduleKey'
+      fullPath: '/modules/$moduleKey'
+      preLoaderRoute: typeof ModulesModuleKeyRouteImport
+      parentRoute: typeof ModulesRoute
+    }
     '/registry/fields/': {
       id: '/registry/fields/'
       path: '/registry/fields'
@@ -518,6 +549,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegistryFieldsFieldIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/modules/$moduleKey/fields': {
+      id: '/modules/$moduleKey/fields'
+      path: '/fields'
+      fullPath: '/modules/$moduleKey/fields'
+      preLoaderRoute: typeof ModulesModuleKeyFieldsRouteImport
+      parentRoute: typeof ModulesModuleKeyRoute
+    }
     '/registry/fields/$fieldId/values': {
       id: '/registry/fields/$fieldId/values'
       path: '/values'
@@ -534,6 +572,28 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface ModulesModuleKeyRouteChildren {
+  ModulesModuleKeyFieldsRoute: typeof ModulesModuleKeyFieldsRoute
+}
+
+const ModulesModuleKeyRouteChildren: ModulesModuleKeyRouteChildren = {
+  ModulesModuleKeyFieldsRoute: ModulesModuleKeyFieldsRoute,
+}
+
+const ModulesModuleKeyRouteWithChildren =
+  ModulesModuleKeyRoute._addFileChildren(ModulesModuleKeyRouteChildren)
+
+interface ModulesRouteChildren {
+  ModulesModuleKeyRoute: typeof ModulesModuleKeyRouteWithChildren
+}
+
+const ModulesRouteChildren: ModulesRouteChildren = {
+  ModulesModuleKeyRoute: ModulesModuleKeyRouteWithChildren,
+}
+
+const ModulesRouteWithChildren =
+  ModulesRoute._addFileChildren(ModulesRouteChildren)
 
 interface RegistryFieldsFieldIdRouteChildren {
   RegistryFieldsFieldIdValuesRoute: typeof RegistryFieldsFieldIdValuesRoute
@@ -557,7 +617,7 @@ const rootRouteChildren: RootRouteChildren = {
   DecisionsRoute: DecisionsRoute,
   LoginRoute: LoginRoute,
   MemoryRoute: MemoryRoute,
-  ModulesRoute: ModulesRoute,
+  ModulesRoute: ModulesRouteWithChildren,
   PermissionsRoute: PermissionsRoute,
   ProfileRoute: ProfileRoute,
   RolesRoute: RolesRoute,

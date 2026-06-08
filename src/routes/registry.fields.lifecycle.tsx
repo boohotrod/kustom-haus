@@ -9,7 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { store } from "@/lib/mock-store";
 import { appendAudit } from "@/lib/audit";
-import { canTransition, invalidatePermissionCache } from "@/lib/field-registry";
+import { assertFieldTransition, canTransition, invalidatePermissionCache } from "@/lib/field-registry";
 import { FIELD_STATUSES, type FieldStatus } from "@/db/schema/registry/fields";
 
 export const Route = createFileRoute("/registry/fields/lifecycle")({
@@ -30,17 +30,21 @@ function LifecyclePage() {
     if (!f) return;
     if (!canTransition(f.status, to)) return;
     const reason = window.prompt(t("registry.fields.reasonPrompt") ?? "Change reason?");
-    if (!reason) return;
-    const from = f.status;
-    f.status = to;
-    f.updatedAt = new Date().toISOString();
-    if (to === "archived") f.archivedAt = f.updatedAt;
-    invalidatePermissionCache(fieldId);
-    appendAudit(store.audit, {
-      actorId: null, tenantKey: "builder",
-      action: "field.status.changed", targetType: "field_definition", targetId: fieldId,
-      payload: { from, to, reason },
-    });
+    try {
+      const trimmed = assertFieldTransition(f.status, to, reason);
+      const from = f.status;
+      f.status = to;
+      f.updatedAt = new Date().toISOString();
+      if (to === "archived") f.archivedAt = f.updatedAt;
+      invalidatePermissionCache(fieldId);
+      appendAudit(store.audit, {
+        actorId: null, tenantKey: "builder",
+        action: "field.status.changed", targetType: "field_definition", targetId: fieldId,
+        payload: { from, to, reason: trimmed },
+      });
+    } catch (err) {
+      window.alert((err as Error).message);
+    }
   }
 
   return (

@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { store } from "@/lib/mock-store";
 import { fieldLabel, resolveFieldPermissions } from "@/lib/field-registry";
+import { findOwner, namespaceMatches } from "@/lib/namespace-ownership";
 
 export const Route = createFileRoute("/registry/fields/$fieldId")({
   head: () => ({ meta: [{ title: "BBS AI Builder — Field detail" }] }),
@@ -55,6 +56,36 @@ function FieldDetailPage() {
           <Button asChild variant="outline" size="sm"><Link to="/registry/fields">{t("common.back")}</Link></Button>
         </div>
       </div>
+
+      {(() => {
+        const owner = findOwner(store.moduleNamespaceBindings, field.tenantKey, field.namespace);
+        const consumers = store.moduleNamespaceBindings.filter(
+          (b) => b.bindingKind !== "owner" && b.bindingKind !== "reserved" && namespaceMatches(b.namespace, field.namespace),
+        );
+        return (
+          <div className="mb-4 rounded-md border p-3 text-xs">
+            <div className="font-semibold mb-1">{t("registry.fields.namespaceUsage.title")}</div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-muted-foreground">{t("registry.fields.namespaceUsage.owner")}:</span>
+              {owner ? (
+                <Link to="/modules/$moduleKey" params={{ moduleKey: owner.moduleKey }}>
+                  <Badge variant="default" className="hover:bg-primary/80">{owner.moduleKey}</Badge>
+                </Link>
+              ) : <Badge variant="destructive">no_owner</Badge>}
+              <span className="ml-3 text-muted-foreground">{t("registry.fields.namespaceUsage.usedBy")}:</span>
+              {consumers.length === 0 ? <span className="text-muted-foreground">—</span> :
+                consumers.map((c) => (
+                  <Link key={c.id} to="/modules/$moduleKey" params={{ moduleKey: c.moduleKey }}>
+                    <Badge variant="outline" className="hover:bg-accent" title={c.grantReason}>
+                      {c.moduleKey} <span className="ml-1 text-[9px] uppercase">{c.bindingKind}</span>
+                    </Badge>
+                  </Link>
+                ))
+              }
+            </div>
+          </div>
+        );
+      })()}
 
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList>

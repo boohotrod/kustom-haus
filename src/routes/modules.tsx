@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -26,6 +26,12 @@ function ModulesPage() {
   const change = (id: string, next: ModuleState) => {
     const m = store.modules.find((x) => x.id === id);
     if (!m) return;
+    if (m.state === next) return;
+    const reason = window.prompt(t("modules.lifecycle.reasonPrompt") ?? "Change reason?");
+    if (!reason || !reason.trim()) {
+      window.alert(t("modules.lifecycle.reasonRequired"));
+      return;
+    }
     const prev = m.state;
     m.state = next;
     appendAudit(store.audit, {
@@ -33,7 +39,7 @@ function ModulesPage() {
       tenantKey: "builder",
       action: "project.module.state_changed",
       targetType: "module", targetId: m.key,
-      payload: { from: prev, to: next },
+      payload: { from: prev, to: next, reason: reason.trim() },
     });
     force((n) => n + 1);
   };
@@ -87,7 +93,9 @@ function ModulesPage() {
           <TableBody>
             {filtered.map((m) => (
               <TableRow key={m.id}>
-                <TableCell className="font-mono text-xs">{m.key}</TableCell>
+                <TableCell className="font-mono text-xs">
+                  <Link to="/modules/$moduleKey" params={{ moduleKey: m.key }} className="hover:underline">{m.key}</Link>
+                </TableCell>
                 <TableCell>
                   <div className="font-medium">{label(m.key, m.name)}</div>
                   <div className="text-xs text-muted-foreground">
