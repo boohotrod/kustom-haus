@@ -5,6 +5,11 @@ import type { ProfileType } from "@/db/schema/identity/profiles";
 import type { ModuleState, ModuleVisibility } from "@/db/schema/project/modules";
 import type { MemoryScope } from "@/db/schema/project/memory";
 import { BBS_SEED_MODULES, type ModuleCategory, type RoadmapPhase } from "./bbs-modules";
+import {
+  SEED_NAMESPACE_BINDINGS,
+  type MockModuleNamespaceBinding,
+  type MockNamespaceOwnershipHistory,
+} from "./namespace-ownership";
 import type {
   MockFieldDefinition, MockFieldVersion, MockFieldTranslation,
   MockFieldTaxonomyBinding, MockFieldPermission, MockFieldEntityBinding,
@@ -153,6 +158,10 @@ export const store = {
   fieldEntityBindings: [] as MockFieldEntityBinding[],
   fieldValues: [] as MockFieldValue[],
   fieldValueHistory: [] as MockFieldValueHistory[],
+
+  // B-2.4 Module ↔ Namespace bindings
+  moduleNamespaceBindings: [] as MockModuleNamespaceBinding[],
+  namespaceOwnershipHistory: [] as MockNamespaceOwnershipHistory[],
 
   audit: [] as AuditEvent[],
 };
