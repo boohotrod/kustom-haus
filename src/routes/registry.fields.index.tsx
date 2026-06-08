@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { store } from "@/lib/mock-store";
 import { fieldLabel } from "@/lib/field-registry";
+import { findOwner } from "@/lib/namespace-ownership";
 import { FIELD_STATUSES } from "@/db/schema/registry/fields";
 
 export const Route = createFileRoute("/registry/fields/")({
@@ -77,6 +78,7 @@ function FieldsListPage() {
             <TableRow>
               <TableHead>{t("registry.fields.cols.key")}</TableHead>
               <TableHead>{t("registry.fields.cols.label")}</TableHead>
+              <TableHead>{t("registry.fields.cols.ownerModule")}</TableHead>
               <TableHead>{t("registry.fields.cols.dataType")}</TableHead>
               <TableHead>{t("registry.fields.cols.status")}</TableHead>
               <TableHead>{t("registry.fields.cols.version")}</TableHead>
@@ -85,10 +87,11 @@ function FieldsListPage() {
           </TableHeader>
           <TableBody>
             {rows.length === 0 ? (
-              <TableRow><TableCell colSpan={6} className="py-6 text-center text-sm text-muted-foreground">{t("common.empty")}</TableCell></TableRow>
+              <TableRow><TableCell colSpan={7} className="py-6 text-center text-sm text-muted-foreground">{t("common.empty")}</TableCell></TableRow>
             ) : rows.map((f) => {
               const version = store.fieldVersions.find((v) => v.id === f.currentVersionId);
               const label = fieldLabel(store.fieldTranslations, f.currentVersionId ?? "", i18n.language, `${f.namespace}.${f.key}`);
+              const owner = findOwner(store.moduleNamespaceBindings, f.tenantKey, f.namespace);
               return (
                 <TableRow key={f.id}>
                   <TableCell className="font-mono text-xs">
@@ -97,6 +100,13 @@ function FieldsListPage() {
                     </Link>
                   </TableCell>
                   <TableCell>{label}</TableCell>
+                  <TableCell className="text-xs">
+                    {owner ? (
+                      <Link to="/modules/$moduleKey" params={{ moduleKey: owner.moduleKey }}>
+                        <Badge variant="outline" className="hover:bg-accent">{owner.moduleKey}</Badge>
+                      </Link>
+                    ) : <Badge variant="destructive">no_owner</Badge>}
+                  </TableCell>
                   <TableCell><Badge variant="secondary">{f.dataType}{f.isMultivalue ? "[]" : ""}</Badge></TableCell>
                   <TableCell><Badge variant={f.status === "active" ? "default" : "outline"}>{f.status}</Badge></TableCell>
                   <TableCell className="font-mono text-xs">v{version?.versionNo ?? "—"}</TableCell>
