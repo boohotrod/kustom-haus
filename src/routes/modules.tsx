@@ -93,7 +93,9 @@ function ModulesPage() {
           <TableBody>
             {filtered.map((m) => (
               <TableRow key={m.id}>
-                <TableCell className="font-mono text-xs">{m.key}</TableCell>
+                <TableCell className="font-mono text-xs">
+                  <Link to="/modules/$moduleKey" params={{ moduleKey: m.key }} className="hover:underline">{m.key}</Link>
+                </TableCell>
                 <TableCell>
                   <div className="font-medium">{label(m.key, m.name)}</div>
                   <div className="text-xs text-muted-foreground">
