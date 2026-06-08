@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import { BuilderShell, PageHeader } from "@/components/builder/BuilderShell";
+import { RouteErrorFallback } from "@/components/builder/RouteErrorFallback";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -14,7 +15,7 @@ export const Route = createFileRoute("/registry/fields/$fieldId/values")({
     const { t } = useTranslation();
     return <BuilderShell title="404"><div className="text-sm">{t("errors.fieldNotFound")}</div></BuilderShell>;
   },
-  errorComponent: ({ error }) => <BuilderShell title="Error"><div className="text-sm text-destructive">{String(error)}</div></BuilderShell>,
+  errorComponent: ({ error }) => <RouteErrorFallback error={error} />,
   loader: ({ params }) => {
     const f = store.fieldDefinitions.find((x) => x.id === params.fieldId);
     if (!f) throw notFound();

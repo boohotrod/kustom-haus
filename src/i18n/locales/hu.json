@@ -445,6 +445,7 @@
     },
     "fieldNotFound": "A mező nem található.",
     "versionNotFound": "A verzió nem található.",
-    "moduleNotFound": "A modul nem található."
+    "moduleNotFound": "A modul nem található.",
+    "title": "Hiba"
   }
 }
