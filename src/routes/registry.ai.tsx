@@ -19,7 +19,7 @@ function AiRegistryPage() {
       <Badge variant="outline" className="mb-3">{t("common.comingInB2")}</Badge>
       <div className="rounded-md border">
         <Table>
-          <TableHeader><TableRow><TableHead>Key</TableHead><TableHead>Kind</TableHead><TableHead>Status</TableHead></TableRow></TableHeader>
+          <TableHeader><TableRow><TableHead>{t("registry.ai.cols.key")}</TableHead><TableHead>{t("registry.ai.cols.kind")}</TableHead><TableHead>{t("registry.ai.cols.status")}</TableHead></TableRow></TableHeader>
           <TableBody>
             {store.aiProviders.map((p) => (
               <TableRow key={p.id}>
