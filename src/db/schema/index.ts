@@ -16,3 +16,4 @@ export * from "./registry/taxonomy";
 export * from "./registry/federation";
 export * from "./registry/ai";
 export * from "./registry/knowledge";
+export * from "./registry/fields";

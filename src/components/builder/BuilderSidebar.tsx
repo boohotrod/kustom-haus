@@ -2,7 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, Users, ShieldCheck, KeySquare, Brain, FileText, Boxes,
   History, Library, Network, BrainCircuit, GitGraph, User, LifeBuoy, Plane,
-  Image, Wrench,
+  Image, Wrench, Database,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -32,6 +32,7 @@ export function BuilderSidebar() {
   ];
   const registry = [
     { url: "/registry/taxonomy", icon: Library, key: "nav.taxonomy" },
+    { url: "/registry/fields", icon: Database, key: "nav.fields" },
     { url: "/registry/federation", icon: Network, key: "nav.federation" },
     { url: "/registry/ai", icon: BrainCircuit, key: "nav.ai" },
     { url: "/registry/knowledge", icon: GitGraph, key: "nav.knowledge" },

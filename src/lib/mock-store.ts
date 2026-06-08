@@ -4,6 +4,11 @@ import { appendAudit, appendAuditCheckpoint, type AuditEvent } from "./audit";
 import type { ProfileType } from "@/db/schema/identity/profiles";
 import type { ModuleState, ModuleVisibility } from "@/db/schema/project/modules";
 import type { MemoryScope } from "@/db/schema/project/memory";
+import type {
+  MockFieldDefinition, MockFieldVersion, MockFieldTranslation,
+  MockFieldTaxonomyBinding, MockFieldPermission, MockFieldEntityBinding,
+  MockFieldValue, MockFieldValueHistory,
+} from "./field-registry";
 
 export type MockUser = {
   id: string;
@@ -135,6 +140,16 @@ export const store = {
     { id: uid(), kind: "requirement", title: "Constitutional Rule: no data duplication" },
   ] as MockKnowledgeNode[],
 
+  // B-2.2 Dynamic Field Registry
+  fieldDefinitions: [] as MockFieldDefinition[],
+  fieldVersions: [] as MockFieldVersion[],
+  fieldTranslations: [] as MockFieldTranslation[],
+  fieldTaxonomyBindings: [] as MockFieldTaxonomyBinding[],
+  fieldPermissions: [] as MockFieldPermission[],
+  fieldEntityBindings: [] as MockFieldEntityBinding[],
+  fieldValues: [] as MockFieldValue[],
+  fieldValueHistory: [] as MockFieldValueHistory[],
+
   audit: [] as AuditEvent[],
 };
 
@@ -193,6 +208,176 @@ store.federationUsers.push(
 );
 appendAudit(store.audit, { actorId: superId, tenantKey: "builder", action: "federation.peer.registered", targetType: "peer", targetId: peerHotrod, payload: { peerKey: "hotrod.network" } });
 appendAudit(store.audit, { actorId: superId, tenantKey: "builder", action: "federation.user.linked", targetType: "user", targetId: memberId, payload: { peer: "hotrod.network", federationUserId: "fed_hr_000123" } });
+
+// ---------------------------------------------------------------------------
+// B-2.2 Dynamic Field Registry — seed a few example fields so every screen has
+// something to render. Demonstrates: string/integer/enum/reference types,
+// multivalue (gallery), translations, taxonomy + entity bindings, EAV values.
+// ---------------------------------------------------------------------------
+function seedField(opts: {
+  namespace: string; key: string; ownerModule: string;
+  dataType: MockFieldDefinition["dataType"]; isMultivalue?: boolean;
+  isRequired?: boolean; schema?: Record<string, unknown>;
+  translations: Record<string, { label: string; help?: string }>;
+  entities: { entityType: string; group?: string; order?: number; required?: boolean }[];
+  taxonomyBindings?: { taxonomyNodeId: string; kind: "scope" | "filter" | "classifier" }[];
+  permissions?: { subjectKind: "role" | "user" | "group" | "federation_peer"; subjectId: string; permission: "read" | "write" | "admin"; effect?: "allow" | "deny" }[];
+}): MockFieldDefinition {
+  const fieldId = uid();
+  const versionId = uid();
+  const now = new Date().toISOString();
+  const def: MockFieldDefinition = {
+    id: fieldId, tenantKey: "builder", namespace: opts.namespace, key: opts.key,
+    ownerModule: opts.ownerModule, dataType: opts.dataType,
+    isMultivalue: opts.isMultivalue ?? false, isRequiredDefault: opts.isRequired ?? false,
+    status: "active", currentVersionId: versionId, createdAt: now, updatedAt: now, archivedAt: null,
+  };
+  store.fieldDefinitions.push(def);
+  store.fieldVersions.push({
+    id: versionId, fieldId, versionNo: 1, schema: opts.schema ?? {}, defaultValue: null,
+    changeReason: "initial", createdBy: devId, createdAt: now, isCurrent: true,
+  });
+  for (const [locale, tr] of Object.entries(opts.translations)) {
+    store.fieldTranslations.push({
+      id: uid(), fieldVersionId: versionId, locale,
+      label: tr.label, help: tr.help,
+    });
+  }
+  for (const e of opts.entities) {
+    store.fieldEntityBindings.push({
+      id: uid(), fieldId, entityType: e.entityType,
+      isRequired: e.required ?? false, displayOrder: e.order ?? 0, groupKey: e.group ?? null,
+    });
+  }
+  for (const b of opts.taxonomyBindings ?? []) {
+    store.fieldTaxonomyBindings.push({ id: uid(), fieldId, taxonomyNodeId: b.taxonomyNodeId, bindingKind: b.kind });
+  }
+  for (const p of opts.permissions ?? []) {
+    store.fieldPermissions.push({
+      id: uid(), fieldId, tenantKey: "builder",
+      subjectKind: p.subjectKind, subjectId: p.subjectId,
+      permission: p.permission, effect: p.effect ?? "allow",
+    });
+  }
+  appendAudit(store.audit, {
+    actorId: devId, tenantKey: "builder",
+    action: "field.definition.created", targetType: "field_definition", targetId: fieldId,
+    payload: { namespace: opts.namespace, key: opts.key, dataType: opts.dataType },
+  });
+  return def;
+}
+
+const hotRodTaxId = store.taxonomies.find((t) => t.key === "hot_rod")!.id;
+
+const fEngine = seedField({
+  namespace: "vehicle", key: "engine.displacement_cc", ownerModule: "garage",
+  dataType: "integer", isRequired: true,
+  schema: { min: 50, max: 12000, ui: { widget: "number", hint: "cm³" } },
+  translations: {
+    en: { label: "Engine displacement", help: "Engine size in cm³" },
+    hu: { label: "Lökettérfogat", help: "Motor mérete cm³-ben" },
+  },
+  entities: [{ entityType: "profile.vehicle", group: "engine", order: 10, required: true }],
+  taxonomyBindings: [{ taxonomyNodeId: hotRodTaxId, kind: "filter" }],
+  permissions: [
+    { subjectKind: "role", subjectId: "builder_admin", permission: "admin" },
+    { subjectKind: "role", subjectId: "viewer", permission: "read" },
+  ],
+});
+
+const fGallery = seedField({
+  namespace: "profile", key: "gallery.images", ownerModule: "media",
+  dataType: "media", isMultivalue: true,
+  schema: { ui: { widget: "gallery" } },
+  translations: {
+    en: { label: "Gallery" },
+    hu: { label: "Galéria" },
+  },
+  entities: [
+    { entityType: "profile.vehicle", group: "media", order: 1 },
+    { entityType: "profile.user", group: "media", order: 1 },
+    { entityType: "profile.club", group: "media", order: 1 },
+  ],
+});
+
+const fOwnerWorkshop = seedField({
+  namespace: "vehicle", key: "owner.preferred_workshop", ownerModule: "garage",
+  dataType: "reference",
+  schema: { reference: { entityType: "profile.workshop" } },
+  translations: {
+    en: { label: "Preferred workshop", help: "Cross-entity reference (tenant + permission checked)" },
+    hu: { label: "Preferált műhely", help: "Cross-entity referencia (tenant + jogosultság ellenőrzött)" },
+  },
+  entities: [{ entityType: "profile.vehicle", group: "ownership", order: 5 }],
+});
+
+const fStatus = seedField({
+  namespace: "vehicle", key: "build.status", ownerModule: "garage",
+  dataType: "enum",
+  schema: { enumMembers: ["planning", "in_progress", "completed", "shelved"] },
+  translations: {
+    en: { label: "Build status" },
+    hu: { label: "Build státusz" },
+  },
+  entities: [{ entityType: "profile.vehicle", group: "build", order: 1 }],
+});
+
+// Hide one field to demonstrate the lifecycle dashboard.
+const fLegacy = seedField({
+  namespace: "profile", key: "legacy.icq_handle", ownerModule: "identity",
+  dataType: "string",
+  translations: { en: { label: "ICQ handle" }, hu: { label: "ICQ azonosító" } },
+  entities: [{ entityType: "profile.user", group: "contact", order: 99 }],
+});
+fLegacy.status = "deprecated";
+appendAudit(store.audit, {
+  actorId: superId, tenantKey: "builder",
+  action: "field.status.changed", targetType: "field_definition", targetId: fLegacy.id,
+  payload: { from: "active", to: "deprecated", reason: "ICQ has been EOL since 2024" },
+});
+
+// A couple of EAV values bound to the demo user / vehicle entity ids.
+const demoVehicleEntityId = uid();
+store.fieldValues.push(
+  {
+    id: uid(), tenantKey: "builder",
+    entityType: "profile.vehicle", entityId: demoVehicleEntityId,
+    fieldId: fEngine.id, fieldVersionId: fEngine.currentVersionId!,
+    position: null, valueString: null, valueNumber: 5700, valueBool: null,
+    valueDatetime: null, valueJson: null,
+    createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), createdBy: devId,
+  },
+  {
+    id: uid(), tenantKey: "builder",
+    entityType: "profile.vehicle", entityId: demoVehicleEntityId,
+    fieldId: fStatus.id, fieldVersionId: fStatus.currentVersionId!,
+    position: null, valueString: "in_progress", valueNumber: null, valueBool: null,
+    valueDatetime: null, valueJson: null,
+    createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), createdBy: devId,
+  },
+  {
+    id: uid(), tenantKey: "builder",
+    entityType: "profile.vehicle", entityId: demoVehicleEntityId,
+    fieldId: fGallery.id, fieldVersionId: fGallery.currentVersionId!,
+    position: 1, valueString: "https://cdn.example/img1.jpg", valueNumber: null, valueBool: null,
+    valueDatetime: null, valueJson: null,
+    createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), createdBy: devId,
+  },
+  {
+    id: uid(), tenantKey: "builder",
+    entityType: "profile.vehicle", entityId: demoVehicleEntityId,
+    fieldId: fGallery.id, fieldVersionId: fGallery.currentVersionId!,
+    position: 2, valueString: "https://cdn.example/img2.jpg", valueNumber: null, valueBool: null,
+    valueDatetime: null, valueJson: null,
+    createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), createdBy: devId,
+  },
+);
+appendAudit(store.audit, {
+  actorId: devId, tenantKey: "builder",
+  action: "field.value.written", targetType: "field_value", targetId: demoVehicleEntityId,
+  payload: { entityType: "profile.vehicle", fields: ["engine.displacement_cc", "build.status", "gallery.images"] },
+});
+
 
 export function currentUser(): MockUser | null {
   return store.users.find((u) => u.id === store.currentUserId) ?? null;
