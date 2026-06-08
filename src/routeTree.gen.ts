@@ -28,6 +28,12 @@ import { Route as RegistryTaxonomyRouteImport } from './routes/registry.taxonomy
 import { Route as RegistryKnowledgeRouteImport } from './routes/registry.knowledge'
 import { Route as RegistryFederationRouteImport } from './routes/registry.federation'
 import { Route as RegistryAiRouteImport } from './routes/registry.ai'
+import { Route as RegistryFieldsIndexRouteImport } from './routes/registry.fields.index'
+import { Route as RegistryFieldsNewRouteImport } from './routes/registry.fields.new'
+import { Route as RegistryFieldsLifecycleRouteImport } from './routes/registry.fields.lifecycle'
+import { Route as RegistryFieldsFieldIdRouteImport } from './routes/registry.fields.$fieldId'
+import { Route as RegistryFieldsFieldIdValuesRouteImport } from './routes/registry.fields.$fieldId.values'
+import { Route as RegistryFieldsFieldIdVersionsVersionNoRouteImport } from './routes/registry.fields.$fieldId.versions.$versionNo'
 
 const UsersRoute = UsersRouteImport.update({
   id: '/users',
@@ -124,6 +130,38 @@ const RegistryAiRoute = RegistryAiRouteImport.update({
   path: '/registry/ai',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RegistryFieldsIndexRoute = RegistryFieldsIndexRouteImport.update({
+  id: '/registry/fields/',
+  path: '/registry/fields/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegistryFieldsNewRoute = RegistryFieldsNewRouteImport.update({
+  id: '/registry/fields/new',
+  path: '/registry/fields/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegistryFieldsLifecycleRoute = RegistryFieldsLifecycleRouteImport.update({
+  id: '/registry/fields/lifecycle',
+  path: '/registry/fields/lifecycle',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegistryFieldsFieldIdRoute = RegistryFieldsFieldIdRouteImport.update({
+  id: '/registry/fields/$fieldId',
+  path: '/registry/fields/$fieldId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegistryFieldsFieldIdValuesRoute =
+  RegistryFieldsFieldIdValuesRouteImport.update({
+    id: '/values',
+    path: '/values',
+    getParentRoute: () => RegistryFieldsFieldIdRoute,
+  } as any)
+const RegistryFieldsFieldIdVersionsVersionNoRoute =
+  RegistryFieldsFieldIdVersionsVersionNoRouteImport.update({
+    id: '/versions/$versionNo',
+    path: '/versions/$versionNo',
+    getParentRoute: () => RegistryFieldsFieldIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -145,6 +183,12 @@ export interface FileRoutesByFullPath {
   '/stubs/support': typeof StubsSupportRoute
   '/stubs/travel': typeof StubsTravelRoute
   '/u/$username': typeof UUsernameRoute
+  '/registry/fields/$fieldId': typeof RegistryFieldsFieldIdRouteWithChildren
+  '/registry/fields/lifecycle': typeof RegistryFieldsLifecycleRoute
+  '/registry/fields/new': typeof RegistryFieldsNewRoute
+  '/registry/fields/': typeof RegistryFieldsIndexRoute
+  '/registry/fields/$fieldId/values': typeof RegistryFieldsFieldIdValuesRoute
+  '/registry/fields/$fieldId/versions/$versionNo': typeof RegistryFieldsFieldIdVersionsVersionNoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -166,6 +210,12 @@ export interface FileRoutesByTo {
   '/stubs/support': typeof StubsSupportRoute
   '/stubs/travel': typeof StubsTravelRoute
   '/u/$username': typeof UUsernameRoute
+  '/registry/fields/$fieldId': typeof RegistryFieldsFieldIdRouteWithChildren
+  '/registry/fields/lifecycle': typeof RegistryFieldsLifecycleRoute
+  '/registry/fields/new': typeof RegistryFieldsNewRoute
+  '/registry/fields': typeof RegistryFieldsIndexRoute
+  '/registry/fields/$fieldId/values': typeof RegistryFieldsFieldIdValuesRoute
+  '/registry/fields/$fieldId/versions/$versionNo': typeof RegistryFieldsFieldIdVersionsVersionNoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -188,6 +238,12 @@ export interface FileRoutesById {
   '/stubs/support': typeof StubsSupportRoute
   '/stubs/travel': typeof StubsTravelRoute
   '/u/$username': typeof UUsernameRoute
+  '/registry/fields/$fieldId': typeof RegistryFieldsFieldIdRouteWithChildren
+  '/registry/fields/lifecycle': typeof RegistryFieldsLifecycleRoute
+  '/registry/fields/new': typeof RegistryFieldsNewRoute
+  '/registry/fields/': typeof RegistryFieldsIndexRoute
+  '/registry/fields/$fieldId/values': typeof RegistryFieldsFieldIdValuesRoute
+  '/registry/fields/$fieldId/versions/$versionNo': typeof RegistryFieldsFieldIdVersionsVersionNoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -211,6 +267,12 @@ export interface FileRouteTypes {
     | '/stubs/support'
     | '/stubs/travel'
     | '/u/$username'
+    | '/registry/fields/$fieldId'
+    | '/registry/fields/lifecycle'
+    | '/registry/fields/new'
+    | '/registry/fields/'
+    | '/registry/fields/$fieldId/values'
+    | '/registry/fields/$fieldId/versions/$versionNo'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -232,6 +294,12 @@ export interface FileRouteTypes {
     | '/stubs/support'
     | '/stubs/travel'
     | '/u/$username'
+    | '/registry/fields/$fieldId'
+    | '/registry/fields/lifecycle'
+    | '/registry/fields/new'
+    | '/registry/fields'
+    | '/registry/fields/$fieldId/values'
+    | '/registry/fields/$fieldId/versions/$versionNo'
   id:
     | '__root__'
     | '/'
@@ -253,6 +321,12 @@ export interface FileRouteTypes {
     | '/stubs/support'
     | '/stubs/travel'
     | '/u/$username'
+    | '/registry/fields/$fieldId'
+    | '/registry/fields/lifecycle'
+    | '/registry/fields/new'
+    | '/registry/fields/'
+    | '/registry/fields/$fieldId/values'
+    | '/registry/fields/$fieldId/versions/$versionNo'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -275,6 +349,10 @@ export interface RootRouteChildren {
   StubsSupportRoute: typeof StubsSupportRoute
   StubsTravelRoute: typeof StubsTravelRoute
   UUsernameRoute: typeof UUsernameRoute
+  RegistryFieldsFieldIdRoute: typeof RegistryFieldsFieldIdRouteWithChildren
+  RegistryFieldsLifecycleRoute: typeof RegistryFieldsLifecycleRoute
+  RegistryFieldsNewRoute: typeof RegistryFieldsNewRoute
+  RegistryFieldsIndexRoute: typeof RegistryFieldsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -412,8 +490,66 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegistryAiRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/registry/fields/': {
+      id: '/registry/fields/'
+      path: '/registry/fields'
+      fullPath: '/registry/fields/'
+      preLoaderRoute: typeof RegistryFieldsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/registry/fields/new': {
+      id: '/registry/fields/new'
+      path: '/registry/fields/new'
+      fullPath: '/registry/fields/new'
+      preLoaderRoute: typeof RegistryFieldsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/registry/fields/lifecycle': {
+      id: '/registry/fields/lifecycle'
+      path: '/registry/fields/lifecycle'
+      fullPath: '/registry/fields/lifecycle'
+      preLoaderRoute: typeof RegistryFieldsLifecycleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/registry/fields/$fieldId': {
+      id: '/registry/fields/$fieldId'
+      path: '/registry/fields/$fieldId'
+      fullPath: '/registry/fields/$fieldId'
+      preLoaderRoute: typeof RegistryFieldsFieldIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/registry/fields/$fieldId/values': {
+      id: '/registry/fields/$fieldId/values'
+      path: '/values'
+      fullPath: '/registry/fields/$fieldId/values'
+      preLoaderRoute: typeof RegistryFieldsFieldIdValuesRouteImport
+      parentRoute: typeof RegistryFieldsFieldIdRoute
+    }
+    '/registry/fields/$fieldId/versions/$versionNo': {
+      id: '/registry/fields/$fieldId/versions/$versionNo'
+      path: '/versions/$versionNo'
+      fullPath: '/registry/fields/$fieldId/versions/$versionNo'
+      preLoaderRoute: typeof RegistryFieldsFieldIdVersionsVersionNoRouteImport
+      parentRoute: typeof RegistryFieldsFieldIdRoute
+    }
   }
 }
+
+interface RegistryFieldsFieldIdRouteChildren {
+  RegistryFieldsFieldIdValuesRoute: typeof RegistryFieldsFieldIdValuesRoute
+  RegistryFieldsFieldIdVersionsVersionNoRoute: typeof RegistryFieldsFieldIdVersionsVersionNoRoute
+}
+
+const RegistryFieldsFieldIdRouteChildren: RegistryFieldsFieldIdRouteChildren = {
+  RegistryFieldsFieldIdValuesRoute: RegistryFieldsFieldIdValuesRoute,
+  RegistryFieldsFieldIdVersionsVersionNoRoute:
+    RegistryFieldsFieldIdVersionsVersionNoRoute,
+}
+
+const RegistryFieldsFieldIdRouteWithChildren =
+  RegistryFieldsFieldIdRoute._addFileChildren(
+    RegistryFieldsFieldIdRouteChildren,
+  )
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -435,7 +571,21 @@ const rootRouteChildren: RootRouteChildren = {
   StubsSupportRoute: StubsSupportRoute,
   StubsTravelRoute: StubsTravelRoute,
   UUsernameRoute: UUsernameRoute,
+  RegistryFieldsFieldIdRoute: RegistryFieldsFieldIdRouteWithChildren,
+  RegistryFieldsLifecycleRoute: RegistryFieldsLifecycleRoute,
+  RegistryFieldsNewRoute: RegistryFieldsNewRoute,
+  RegistryFieldsIndexRoute: RegistryFieldsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
