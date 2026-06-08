@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import { BuilderShell, PageHeader } from "@/components/builder/BuilderShell";
+import { RouteErrorFallback } from "@/components/builder/RouteErrorFallback";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { store } from "@/lib/mock-store";
