@@ -1,4 +1,4 @@
-import { sha256 } from "@noble/hashes/sha2";
+import { sha256 } from "@noble/hashes/sha2.js";
 
 // Opaque session / invite tokens. We store only the SHA-256 hash server-side.
 export function generateToken(length = 32): string {
