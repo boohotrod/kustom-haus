@@ -391,6 +391,46 @@ appendAudit(store.audit, {
   payload: { entityType: "profile.vehicle", fields: ["engine.displacement_cc", "build.status", "gallery.images"] },
 });
 
+// ---------------------------------------------------------------------------
+// B-2.4 — Module ↔ Namespace bindings seed. Every namespace used by any field
+// has an owner here; ownership invariant must be green at boot.
+// ---------------------------------------------------------------------------
+const _bindNow = new Date().toISOString();
+for (const s of SEED_NAMESPACE_BINDINGS) {
+  store.moduleNamespaceBindings.push({
+    id: uid(),
+    tenantKey: "builder",
+    moduleKey: s.moduleKey,
+    namespace: s.namespace,
+    bindingKind: s.bindingKind,
+    autoGrantToDependents: s.autoGrantToDependents ?? false,
+    grantedBy: superId,
+    grantReason: s.grantReason,
+    createdAt: _bindNow,
+    updatedAt: _bindNow,
+  });
+  if (s.bindingKind === "owner") {
+    store.namespaceOwnershipHistory.push({
+      id: uid(), tenantKey: "builder", namespace: s.namespace,
+      fromModuleKey: null, toModuleKey: s.moduleKey,
+      changedBy: superId, changeReason: s.grantReason, changedAt: _bindNow,
+    });
+  }
+}
+appendAudit(store.audit, {
+  actorId: superId, tenantKey: "builder",
+  action: "namespace.bindings.seeded", targetType: "registry", targetId: "module_namespace_bindings",
+  payload: { count: SEED_NAMESPACE_BINDINGS.length },
+});
+// Example denial event so the audit log shows the rule in action.
+appendAudit(store.audit, {
+  actorId: superId, tenantKey: "builder",
+  action: "namespace.usage.denied", targetType: "module", targetId: "support",
+  payload: { module: "support", namespace: "vehicle", reason: "denied" },
+});
+
+
+
 
 export function currentUser(): MockUser | null {
   return store.users.find((u) => u.id === store.currentUserId) ?? null;
