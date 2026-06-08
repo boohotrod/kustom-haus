@@ -1,308 +1,254 @@
+# B-2.2 — Dynamic Field Registry (DFR) — Terv
 
-# BBS AI Builder Platform v0.2 — B-2 terv
-
-A B-2 a **Dynamic Field Registry** köré épül (Alkotmány §9–10), kiegészítve egy könnyű Federation-kompatibilitási patch-csel, a BBS seed bővítésével és az AI fordítási cache első rétegével. Workflow / GDPR / Backup / Export Engine **nem része** a B-2-nek — B-3-ban marad.
-
-A B-2 minden eleme:
-- additív (nem ír felül B-0/B-1 táblát),
-- i18n-kulcsból jön minden UI szöveg,
-- tényleges UI képernyőhöz kötött (admin Builder felületen),
-- dokumentált a `docs/architecture/` alatt,
-- mock-store-on és Drizzle MySQL schema-n is fut (a Lovable preview az in-memory mock-ot használja, a cPanel Node target a valós DB-t).
+A Dynamic Field Registry a BBS központi metaadat-rendszere. A mező nem oszlop, hanem **önálló, verziózott, auditált, fordítható, jogosultságkezelt, taxonomy-hoz kapcsolható objektum**. Az adatok EAV modellben tárolódnak, de indexelhető és skálázható módon.
 
 ---
 
-## B-2.1 — Federation user link + audit tenant scoping
+## 1. Alapelvek (rögzítve)
 
-### Új tábla: `federation_users`
+- A **mező = objektum**, nem oszlop.
+- **Életciklus**: `active → hidden → disabled → deprecated → archived`
+- Használt mező **fizikailag nem törölhető** (csak archived).
+- Minden mező: **verziózott, auditált, fordítható, jogosultságkezelt, taxonomy-hoz köthető**.
+- A **Universal Profile Engine** elsődleges fogyasztó; később: Vehicle, Club, Event, Business, Workshop, Shop, Artist, Performer.
+- EAV maradjon **indexelhető és skálázható** (típusos value oszlopok + részleges indexek + materialized projection opció).
+
+---
+
+## 2. Adatmodell – Táblák
+
+A DFR 9 új tábla + 2 enum a `public` sémában (mock-store-ban tükrözve). Minden tábla `tenant_key`-jel scope-olt és audit-kompatibilis.
+
+### 2.1 Enums
+
+- `field_status`: `active | hidden | disabled | deprecated | archived`
+- `field_data_type`: `string | text | integer | decimal | boolean | date | datetime | enum | reference | json | media | geo`
+
+### 2.2 Központi táblák
+
+**`field_definitions`** — A mező mint objektum (a "fej").
+- `id` (uuid, pk)
+- `tenant_key` (text, idx)
+- `key` (text) — gépi azonosító, pl. `vehicle.engine.displacement_cc`
+- `namespace` (text) — pl. `vehicle`, `club`, `profile.core`
+- `owner_module` (text) — melyik BBS modul birtokolja
+- `data_type` (`field_data_type`)
+- `is_multivalue` (bool)
+- `is_required_default` (bool)
+- `status` (`field_status`, default `active`)
+- `current_version_id` (uuid, fk → `field_versions.id`)
+- `created_at`, `updated_at`, `archived_at`
+- UNIQUE (`tenant_key`, `namespace`, `key`)
+
+**`field_versions`** — Verziózás (a "test"). Minden szerkesztés új verzió.
+- `id` (uuid, pk)
+- `field_id` (fk → field_definitions)
+- `version_no` (int, monoton)
+- `schema` (jsonb) — validáció, min/max, regex, enum-tagok, reference target, UI hints
+- `default_value` (jsonb, null)
+- `change_reason` (text)
+- `created_by`, `created_at`
+- `is_current` (bool, részleges unique idx field_id + is_current=true)
+
+**`field_translations`** — Minden mező fordítható (label, help, placeholder, enum-tagok).
+- `id`, `field_version_id` (fk), `locale` (text), `label`, `help`, `placeholder`, `enum_labels` (jsonb)
+- UNIQUE (`field_version_id`, `locale`)
+- B-1 dummy-formátum továbbra is működik: hiányzó fordítás esetén `[locale] key`.
+
+**`field_taxonomy_bindings`** — Mező ↔ taxonomy node.
+- `id`, `field_id`, `taxonomy_node_id` (fk a meglévő taxonomy-hoz), `binding_kind` (`scope | filter | classifier`), `created_at`
+- UNIQUE (`field_id`, `taxonomy_node_id`, `binding_kind`)
+
+**`field_permissions`** — Jogosultságok mezőszinten (read/write/admin).
+- `id`, `field_id`, `subject_kind` (`role | group | user | federation_peer`), `subject_id` (text), `permission` (`read | write | admin`), `effect` (`allow | deny`), `tenant_key`
+- UNIQUE (`field_id`, `subject_kind`, `subject_id`, `permission`)
+- Kiértékelés: `deny > allow`, hiányzó szabály = nem látható.
+
+### 2.3 Entitás-kapcsolódás (profil-agnosztikus)
+
+**`field_entity_bindings`** — Melyik entitástípuson jelenhet meg a mező.
+- `id`, `field_id`, `entity_type` (text: `profile.user | profile.vehicle | profile.club | profile.event | profile.business | profile.workshop | profile.shop | profile.artist | profile.performer | ...`), `is_required` (bool override), `display_order` (int), `group_key` (text, UI csoport)
+- UNIQUE (`field_id`, `entity_type`)
+
+### 2.4 EAV érték-tárolás (indexelhető)
+
+**`field_values`** — A tényleges adat. Típusos oszlopok + részleges indexek.
+- `id` (uuid)
+- `tenant_key` (text, idx)
+- `entity_type` (text), `entity_id` (uuid) — kompozit logikai FK
+- `field_id` (fk), `field_version_id` (fk) — milyen verzió szerint íródott
+- `value_string` (text, null)
+- `value_number` (numeric, null)
+- `value_bool` (bool, null)
+- `value_datetime` (timestamptz, null)
+- `value_json` (jsonb, null) — komplex/multivalue/reference esetén
+- `created_at`, `updated_at`, `created_by`
+- INDEX-ek:
+  - `(tenant_key, entity_type, entity_id)` — entitás-olvasás
+  - `(field_id, value_string)` WHERE value_string IS NOT NULL — equality search
+  - `(field_id, value_number)` WHERE value_number IS NOT NULL
+  - `(field_id, value_datetime)` WHERE value_datetime IS NOT NULL
+  - GIN `(value_json jsonb_path_ops)` WHERE value_json IS NOT NULL
+- UNIQUE (`tenant_key`, `entity_type`, `entity_id`, `field_id`) ha `is_multivalue=false`
+
+**`field_value_history`** — Érték-szintű audit + visszaállítás.
+- `id`, `value_id`, `previous_snapshot` (jsonb), `changed_by`, `changed_at`, `change_reason`, `audit_event_id` (fk → audit_events)
+
+### 2.5 Audit kapcsolat
+
+- Minden DFR művelet (create/update/status-change/archive/permission-change/translation-change/value-write) **`audit_events`-be ír** a B-2.1-ben bevezetett `tenant_key` és hash-chain (v2) szerint.
+- `audit_events.target_type` értékek: `field_definition`, `field_version`, `field_translation`, `field_permission`, `field_value`.
+
+---
+
+## 3. Kapcsolatok (ER diagram – ASCII)
 
 ```text
-federation_users
-  id                BIGINT PK
-  user_id           BIGINT FK -> users.id            (helyi globális identitás)
-  peer_id           BIGINT FK -> federation_peers.id
-  bbs_federation_user_id  VARCHAR(64)  UNIQUE per peer
-  source_system_id  VARCHAR(64)
-  source_tenant_id  VARCHAR(64)
-  source_record_id  VARCHAR(64)
-  data_origin       ENUM('local','imported','synced','external')
-  sync_status       ENUM('local','imported','synced','pending','conflict','archived_remote','disconnected')
-  sync_created_at   TIMESTAMP
-  sync_updated_at   TIMESTAMP
-  metadata          JSON
-  UNIQUE (peer_id, bbs_federation_user_id)
-  INDEX (user_id), INDEX (sync_status)
+                       field_definitions
+                              │ 1
+              ┌───────────────┼───────────────┬──────────────┬────────────────┐
+              │ N             │ N             │ N            │ N              │ N
+       field_versions  field_entity_b.  field_taxonomy_b.  field_permissions  field_values
+              │ 1
+              │ N
+       field_translations
+
+       field_values ─1─N─ field_value_history ─1─1─ audit_events
+       field_definitions.current_version_id ──► field_versions.id
+       field_taxonomy_bindings ──► taxonomy_nodes (B-1 meglévő)
+       field_permissions.subject_id ──► users / roles / federation_peers (B-2.1)
+       field_values.(entity_type, entity_id) ──► Universal Profile Engine entitások
 ```
-
-Federation Bridge §7–8, §22–23 mezőkövetelményeit fedi le. A helyi `users.id` változatlan; a federation ID csak link.
-
-### Módosítás: `audit_events`
-
-Új oszlop: `tenant_key VARCHAR(64) NULL` (index). Visszafelé kompatibilis; régi sorok `NULL`. A hash-chain láncot nem töri (a `tenant_key` belekerül a kanonikus payload-ba a **migráció után** írt eseményeknél; régi események saját régi hash-ükkel maradnak — ez egy explicit chain-checkpoint).
-
-### Migrációs lépés
-
-- `0002_federation_users.sql` — új tábla + indexek + GRANT.
-- `0003_audit_tenant_key.sql` — `ALTER TABLE audit_events ADD COLUMN tenant_key …` + chain-checkpoint sor beszúrása (`event_type = 'audit.chain.checkpoint'`).
-
-### UI
-
-- `/registry/federation` képernyő bővítése: peer-detail nézetben **Linked users** lista (user_id ↔ federation_user_id ↔ sync_status).
-- `/audit` képernyő bővítése: `tenant_key` szűrő + oszlop.
 
 ---
 
-## B-2.2 — Dynamic Field Registry (B-2 központi eleme)
-
-Alkotmány §9–10: minden üzletileg kritikus mező **kezelt rendszerobjektum**, nem hardcoded oszlop. Fizikai törlés tilos.
-
-### Adatmodell — 6 tábla
+## 4. Mező-életciklus
 
 ```text
-field_definitions
-  id              BIGINT PK
-  key             VARCHAR(96)   -- pl. "profile.business.vat_number"
-  scope_type      ENUM('global','tenant','project','module','entity')
-  scope_ref       VARCHAR(128)  -- pl. "module:webshop" vagy "entity:profile.business"
-  data_type       ENUM('string','text','int','decimal','bool','date','datetime',
-                       'json','enum','ref','media','geo','i18n_string')
-  ui_widget       VARCHAR(64)   -- text|textarea|select|multiselect|date|toggle|...
-  state           ENUM('draft','active','hidden','disabled','deprecated','archived')
-  is_required     BOOL
-  is_unique       BOOL
-  is_indexed      BOOL
-  is_pii          BOOL
-  default_value   JSON NULL
-  validation      JSON NULL     -- { min, max, regex, enum, custom_rule_key }
-  ref_target      VARCHAR(128) NULL  -- ha data_type='ref'
-  owner_user_id   BIGINT
-  created_at, updated_at
-  UNIQUE (scope_type, scope_ref, key)
-
-field_versions                  -- minden mező-változás verziózva (Alk. §32)
-  id, field_id FK, version INT,
-  snapshot JSON, change_reason TEXT,
-  changed_by_user_id, changed_at,
-  UNIQUE (field_id, version)
-
-field_labels                    -- i18n címke + segéd szöveg
-  id, field_id FK, locale VARCHAR(8),
-  label VARCHAR(255), help_text TEXT, placeholder VARCHAR(255),
-  UNIQUE (field_id, locale)
-
-field_options                   -- enum / select értékek (külön értékek mind verziózottak)
-  id, field_id FK, value VARCHAR(128),
-  state ENUM('active','hidden','deprecated','archived'),
-  sort_order INT,
-  UNIQUE (field_id, value)
-
-field_option_labels
-  id, option_id FK, locale, label,
-  UNIQUE (option_id, locale)
-
-field_values                    -- dinamikus értéktár (EAV, írás-optimalizált index-szel)
-  id BIGINT PK,
-  field_id FK,
-  entity_type VARCHAR(64),      -- pl. "user","profile","project","module","custom:X"
-  entity_id   VARCHAR(64),
-  value_string   VARCHAR(1024) NULL,
-  value_text     TEXT NULL,
-  value_number   DECIMAL(20,6) NULL,
-  value_bool     BOOL NULL,
-  value_date     DATETIME NULL,
-  value_json     JSON NULL,
-  locale         VARCHAR(8) NULL,   -- csak i18n_string-nél
-  created_at, updated_at,
-  INDEX (field_id, entity_type, entity_id),
-  INDEX (entity_type, entity_id)
+   ┌─────────┐  hide      ┌────────┐  disable   ┌──────────┐
+   │ active  │──────────► │ hidden │──────────► │ disabled │
+   └────┬────┘            └───┬────┘            └────┬─────┘
+        │ deprecate            │ deprecate            │ deprecate
+        ▼                      ▼                      ▼
+                       ┌──────────────┐  archive   ┌──────────┐
+                       │  deprecated  │──────────► │ archived │
+                       └──────────────┘            └──────────┘
 ```
 
-### Mező-életciklus (Alk. §10)
-
-```text
-draft → active → hidden → disabled → deprecated → archived
-                     ↑                      |
-                     └──────── reactivate ──┘   (csak SuperAdmin)
-```
-
-- `draft`: létrejött, még nem használható.
-- `active`: használható, megjelenik UI-on.
-- `hidden`: UI-on rejtett, adat marad.
-- `disabled`: nem írható, csak olvasható.
-- `deprecated`: jelölt, új helyen nem ajánlott; meglévő adat él.
-- `archived`: csak read-only audit célból; UI-on nem jelenik meg.
-- **Fizikai törlés tiltott** ha bármikor volt `field_values` rekord.
-
-Minden átmenet → `field_versions` snapshot + `audit_events` esemény (`field.lifecycle.*`).
-
-### Kapcsolatok
-
-- `field_definitions.scope_ref` → `project_modules`, `entity_versions` (puha hivatkozás, nem FK, mert a scope_type dönt).
-- `field_values.entity_type/entity_id` polimorf — a Builder gondoskodik integritásról az alkalmazás-rétegben.
-- `entity_versions` (B-1) snapshot-jaiba a dinamikus mezők is bekerülnek.
-
-### Jogosultságok (function-level, B-1 RBAC-on)
-
-Új permission kulcsok (`module.function.action`):
-
-```
-fields.definition.read
-fields.definition.create
-fields.definition.update
-fields.definition.lifecycle      -- állapotváltás
-fields.definition.delete         -- csak draft-on engedélyezett
-fields.options.manage
-fields.labels.manage
-fields.values.read
-fields.values.write
-fields.values.read_pii           -- külön gate ha is_pii=true
-```
-
-Resolver sorrend változatlan: SuperAdmin → deny override → allow override → role → default deny. SuperAdmin invisibility érvényes a `field_definitions.owner_user_id` listázáskor is.
-
-### UI képernyők (mind i18n)
-
-1. **`/fields`** — Field Registry lista: szűrők (scope, data_type, state, is_pii), gyors állapotváltás.
-2. **`/fields/$fieldKey`** — Field detail: alap meta, validáció, opciók, i18n címkék, verziótörténet, audit alsablon.
-3. **`/fields/new`** — Új mező varázsló (scope kiválasztás → data_type → validation → labels → draft mentés).
-4. **`/fields/$fieldKey/values`** — Field-használat: melyik entitásokon, hány érték, link az entitásra.
-5. **Entitás-oldali integráció** (B-1 képernyők bővítése): pl. `/u/$username` és `/users` profile-szerkesztő automatikusan rendereli a `scope = entity:profile.<upe_type>` mezőket.
-
-### Migrációs stratégia
-
-- `0004_field_registry.sql` — 6 új tábla, GRANT-okkal.
-- `0005_field_registry_seed.sql` — alaprendszermezők seed-elése `is_system=true` flag-gel (pl. `profile.common.display_name`, `profile.business.vat_number`, `profile.vehicle.vin`), hogy a meglévő képernyők ne ürüljenek ki.
-- A B-1 `profiles` táblán **nem** változtatunk — a dinamikus mezők párhuzamosan élnek a fix oszlopokkal. Lassú migráció B-3-ban (`fix → dynamic` flip).
+Szabályok:
+- `active` → új íráshoz és olvasáshoz használható.
+- `hidden` → UI-on rejtett, API-n olvasható, írható.
+- `disabled` → olvasható (történeti), **új írás tiltott**.
+- `deprecated` → olvasható, írás csak migrációs jogosultsággal.
+- `archived` → csak audit/visszaállító nézetben látható, **soha nem törölhető fizikailag** ha létezik bármilyen `field_values` rekord.
+- Visszafelé átmenet csak `admin` szerepkörrel és `change_reason` kötelező.
 
 ---
 
-## B-2.3 — BBS seed modulok teljes készlete
+## 5. Jogosultsági modell
 
-Az 1 db `bbs` seed projekt bővítése; csak adat, nem új schema.
+Három szint, AND kapcsolatban kiértékelve:
 
-Modulkészlet (state = `active` vagy `planned`):
+1. **Modul-szint** (`owner_module` + RBAC role: `field.admin`, `field.editor`, `field.viewer`).
+2. **Mező-szint** (`field_permissions` – per role/group/user/federation_peer).
+3. **Entitás-szint** (a profil saját jogosultsága – Universal Profile Engine adja).
 
-```
-support, travel, media, garage,
-blog, webshop, events, tickets, gallery,
-memberships, finance, cash_register, notifications,
-translations, themes, admin, superadmin, backup,
-ai_engine, federation, seo, automation
-```
+Műveletek:
+- `read` — látszik a UI-on, kiolvasható API-n.
+- `write` — érték írható (a mező státusza is engedi-e).
+- `admin` — definíciót, verziót, fordítást, jogot módosíthat, státuszt léptethet.
 
-- Minden modul kap: `module_state`, `visibility`, default permission set (csak read-stub), placeholder route a Builder UI-ban (`/modules` lista mutatja).
-- Csak `support, travel, media, garage` modulok rendelkeznek tényleges UI stub route-tal (B-1-ből). A többi modul a `/modules` képernyőn jelenik meg listaként + detail drawer-rel, de nem kap új route-fát.
-
-### Migráció
-
-- `0006_bbs_seed_modules.sql` — `INSERT INTO project_modules ...` az új modulokra (`insert` eszközzel, nem schema-migrációként a Lovable felé; cPanel-en SQL seed scriptként).
-
-### UI
-
-- `/modules` képernyő (B-1) bővül: szűrő modul-státuszra, lifecycle akció gombok, audit link.
+Federation: `subject_kind=federation_peer` lehetővé teszi peer-szintű read-only kiosztást a B-2.1 `federation_users` mentén.
 
 ---
 
-## B-2.4 — AI Translation Cache
+## 6. Taxonomy kapcsolat
 
-Alkotmány §13. Most még **dummy provider**, valós OpenAI/Claude hívás nem indul.
-
-### Új táblák
-
-```text
-ai_translations
-  id BIGINT PK
-  source_locale     VARCHAR(8)
-  target_locale     VARCHAR(8)
-  source_hash       CHAR(64)   -- sha256(source_text)
-  source_text       TEXT
-  translated_text   TEXT
-  provider_id       BIGINT FK -> ai_providers.id
-  model_id          BIGINT FK -> ai_models.id  NULL
-  quality_score     DECIMAL(3,2) NULL
-  state             ENUM('cached','stale','manual_override','rejected')
-  created_at, updated_at,
-  UNIQUE (source_locale, target_locale, source_hash)
-
-ai_translation_jobs
-  id, source_locale, target_locale,
-  source_hash, status ENUM('pending','running','done','failed'),
-  requested_by_user_id, requested_at, finished_at,
-  error TEXT NULL
-```
-
-### Logika (dummy provider)
-
-- `translate(source, from, to)` → cache hit? return; else dummy job, ami a forrást `[to] ` prefixszel visszaadja, és cache-eli.
-- AI Registry `ai_providers` táblába seed: `dummy-translator` provider (`kind = 'translate'`).
-
-### UI
-
-- `/registry/ai` bővítés: **Translations** fül — cache statisztika, recent jobs, manuális fordítás form (forrás + target_locale → eredmény).
-- `/i18n` (új): kulcs-szintű i18n cache inspektor — látható, mely UI kulcsok mely nyelven cache-eltek, melyek hiányoznak.
-
-### Permission
-
-```
-ai.translation.read
-ai.translation.request
-ai.translation.override
-ai.translation.purge
-```
-
-### Migráció
-
-- `0007_ai_translation_cache.sql` — 2 tábla + GRANT + dummy provider seed.
+- A taxonomy node-okhoz **3 kötési mód**: `scope` (csak ezen ág entitásain jelenik meg), `filter` (UI/API szűrőkulcs), `classifier` (a mező értéke maga osztályoz egy taxonomy node-ba).
+- A bindings tábla N-N, mező több taxonomy ághoz is köthető (pl. `vehicle.engine.displacement_cc` → `vehicle/cars`, `vehicle/motorcycles`).
 
 ---
 
-## Migrációs stratégia összefoglalva
+## 7. Translation kapcsolat
 
-| Lépés | Fájl | Típus | Reverzibilis |
-|---|---|---|---|
-| 0002 | `federation_users` | CREATE | igen (DROP) |
-| 0003 | `audit_events.tenant_key` | ALTER ADD | igen (DROP COLUMN) — checkpoint sor megmarad |
-| 0004 | Field Registry 6 tábla | CREATE | igen |
-| 0005 | Field Registry seed | INSERT | igen |
-| 0006 | BBS modulok seed | INSERT | igen |
-| 0007 | AI translation cache | CREATE+INSERT | igen |
-
-- Lovable preview: a mock-store kap megfelelő bővítést, hogy a Builder UI minden képernyője működjön valós DB nélkül.
-- cPanel Node target: a `drizzle-kit generate` futtatja a SQL-t, de **csak a tulajdonos jóváhagyott pillanatban**. A B-2 fejlesztés alatt **nem fut migráció**.
+- A fordítás a **verzióhoz** kötődik, nem a definícióhoz → a régi verzió fordítása megőrződik.
+- Új verzió létrehozásakor a fordítások öröklődnek (copy-on-write); szerkesztéskor új sor.
+- Dummy fallback: `[locale] field.key` (B-1 + B-2 döntés #4).
+- Locale-ok forrása: meglévő i18n locales (`en`, `hu`, `no`).
 
 ---
 
-## Mit NEM csinálunk B-2-ben (megerősítés)
+## 8. Versioning kapcsolat
 
-- Workflow Engine → B-3
-- GDPR Engine (consent, export, anonymize) → B-3
-- Backup Engine → B-3
-- Export Engine → B-3
-- Valós OpenAI / Claude API hívás → külön jelzéssel B-3+
-- BBS portál tényleges modul-implementációk (webshop logika, ticketing) → BBS projekt saját ütemezésében
-- Hot Rod / Kustom UI redesign → későbbi vizuális fázis
+- Minden szerkesztés `field_versions` új sora (`version_no++`).
+- `current_version_id` a `field_definitions`-en mutat az aktívra.
+- Régi verziók megmaradnak — `field_values.field_version_id` mutatja, melyik szerint íródott az érték.
+- Migráció: új verzió bevezetése nem írja át a régi értékeket; külön "revalidate" job futtatható később (B-3 hatókör).
 
 ---
 
-## B-2 zárójelentés tartalma (előre rögzítve)
+## 9. Audit kapcsolat
 
-1. Létrehozott fájlok
-2. Módosított fájlok
-3. Telepített csomagok
-4. Generált migrációk (nem futtatott)
-5. Működő képernyők (preview-ban)
-6. Mock-store lefedettség
-7. Ismert hiányok
-8. Hibák / figyelmeztetések
-9. Következő javasolt lépés (B-3 sorrend)
+- Minden DFR művelet `audit_events` (v2, `tenant_key` + hash-chain).
+- `field_value_history.audit_event_id` ↔ `audit_events.id` 1:1.
+- Archiválás és státuszváltás kötelezően `change_reason`-nel.
+- Federation-eredetű módosítás `actor_id`-ja az importáló rendszerhez (B-2.1 `federation_users.source_system_id`) kötődik.
 
 ---
 
-## Jóváhagyásra váró döntések
+## 10. UI képernyők
 
-1. **`field_values` tárolási modell**: EAV (fenti) **vs.** entitásonkénti `JSON` blob a `entity_versions`-ben. Javaslat: **EAV**, mert indexelhető + Field Registry permission-jaihoz illeszkedik.
-2. **`audit_events.tenant_key`** chain-checkpoint elfogadható-e (régi hash-lánc megmarad, új lánc indul) — javaslat: **igen**.
-3. **BBS seed**: minden új modul `state = 'planned'`, csak a B-1 négyese marad `active` — javaslat: **igen**.
-4. **Dummy translation prefix** formátum (`[hu] szöveg`) — javaslat: **igen**, hogy vizuálisan azonnal látszódjon a cache működése.
+Új route-ok a meglévő `/registry/*` minta szerint:
 
-Jóváhagyás után indul a B-2 implementáció a fenti sorrendben (B-2.1 → B-2.2 → B-2.3 → B-2.4).
+1. **`/registry/fields`** — Field lista
+   - Szűrők: `namespace`, `owner_module`, `status`, `entity_type`, `tenant_key`, taxonomy node.
+   - Oszlopok: key, label (aktuális locale), data_type, status, version_no, használati szám (value-count).
+2. **`/registry/fields/:fieldId`** — Field részletek
+   - Tabok: **Overview**, **Versions**, **Translations**, **Permissions**, **Taxonomy**, **Entities**, **Audit**.
+3. **`/registry/fields/new`** — Új mező varázsló
+   - Lépések: alap (key, namespace, data_type) → schema (validáció) → entitások → taxonomy → fordítások → jogosultságok → összegzés.
+4. **`/registry/fields/:fieldId/versions/:versionNo`** — Verzió diff nézet (schema + translations).
+5. **`/registry/fields/:fieldId/values`** — EAV inspector (read-only, debug/admin).
+6. **`/registry/fields/lifecycle`** — Életciklus dashboard (státusz-eloszlás, deprecated/archived műveletek, `change_reason` követelmény).
+
+A **Universal Profile Engine** képernyői a mezőket olvassák a registry-ből; a DFR UI csak metaadat-kezelés.
+
+---
+
+## 11. Migrációs stratégia
+
+- Új migrációk a meglévő számozási rendben:
+  - `0004_field_enums.sql` (enumok)
+  - `0005_field_definitions_and_versions.sql`
+  - `0006_field_translations.sql`
+  - `0007_field_taxonomy_bindings.sql`
+  - `0008_field_permissions.sql`
+  - `0009_field_entity_bindings.sql`
+  - `0010_field_values.sql` (+ részleges indexek + GIN)
+  - `0011_field_value_history.sql`
+- Minden tábla után **explicit GRANT** (`authenticated`, `service_role`; `anon` nem kap), RLS engedélyezés és policy-k `has_role(...)` mintával.
+- Mock-store előbb (B-2.2 implementáció), valódi migráció futtatása **B-3** hatókörben (a 4 B-2 döntés szerint).
+- B-2.1-kompatibilis: minden insert `tenant_key`-t kap, minden audit hash-chain v2-be írja a változást.
+
+---
+
+## 12. Kockázatok és nyitott pontok (jóváhagyásra)
+
+1. **Reference data_type célja** — engedjük-e cross-entity referenciát már most? (Javaslat: igen, `schema.reference.entity_type` mezővel.)
+2. **Materialized projection** entitásonként (cache tábla, pl. `profile_vehicle_flat`) — most csak előkészítés, tényleges generálás B-3.
+3. **Multivalue rendezés** — kell-e explicit `position` oszlop `field_values`-ben? (Javaslat: igen, opcionális `position int`.)
+4. **Permission cache** — futásidőben memo a UI-ban; invalidáció audit-eseményre.
+
+---
+
+## 13. B-2.2 leszállítandó (jóváhagyás után)
+
+- 9 séma-fájl `src/db/schema/registry/fields/` alatt.
+- Mock-store kiterjesztés (definíciók, verziók, fordítások, jogok, taxonomy bindings, entity bindings, values, history).
+- 6 új UI route a fenti listából.
+- i18n kulcsok (`en`, `hu`, `no`).
+- Dokumentáció: `docs/architecture/b-2.2-dynamic-field-registry.md`.
+- **Nem** indul: AI Translation Cache (B-2.4), BBS seed bővítés (B-2.3).
+- **Nem** fut: valódi DB migráció.
+
+Kérlek jelezd, ha a 12-es pont nyitott kérdéseire is kéred a döntést, vagy a tervet így jóváhagyod és indulhat a B-2.2 implementáció.
