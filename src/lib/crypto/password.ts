@@ -1,5 +1,5 @@
-import { scryptAsync } from "@noble/hashes/scrypt";
-import { randomBytes } from "@noble/hashes/utils";
+import { scryptAsync } from "@noble/hashes/scrypt.js";
+import { randomBytes } from "@noble/hashes/utils.js";
 
 // scrypt is the cross-platform baseline (Workers + Node). Production cPanel
 // build replaces this with argon2id from the `argon2` npm package — same API.
