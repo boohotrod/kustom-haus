@@ -25,7 +25,6 @@ if (!i18n.isInitialized) {
     fallbackLng: "en",
     supportedLngs: SUPPORTED_LOCALES as unknown as string[],
     interpolation: { escapeValue: false },
-    initImmediate: false,
     react: { useSuspense: false },
   });
 }
