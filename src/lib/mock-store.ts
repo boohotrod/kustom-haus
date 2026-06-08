@@ -4,6 +4,11 @@ import { appendAudit, appendAuditCheckpoint, type AuditEvent } from "./audit";
 import type { ProfileType } from "@/db/schema/identity/profiles";
 import type { ModuleState, ModuleVisibility } from "@/db/schema/project/modules";
 import type { MemoryScope } from "@/db/schema/project/memory";
+import type {
+  MockFieldDefinition, MockFieldVersion, MockFieldTranslation,
+  MockFieldTaxonomyBinding, MockFieldPermission, MockFieldEntityBinding,
+  MockFieldValue, MockFieldValueHistory,
+} from "./field-registry";
 
 export type MockUser = {
   id: string;
@@ -134,6 +139,16 @@ export const store = {
     { id: uid(), kind: "module", title: "Identity & RBAC" },
     { id: uid(), kind: "requirement", title: "Constitutional Rule: no data duplication" },
   ] as MockKnowledgeNode[],
+
+  // B-2.2 Dynamic Field Registry
+  fieldDefinitions: [] as MockFieldDefinition[],
+  fieldVersions: [] as MockFieldVersion[],
+  fieldTranslations: [] as MockFieldTranslation[],
+  fieldTaxonomyBindings: [] as MockFieldTaxonomyBinding[],
+  fieldPermissions: [] as MockFieldPermission[],
+  fieldEntityBindings: [] as MockFieldEntityBinding[],
+  fieldValues: [] as MockFieldValue[],
+  fieldValueHistory: [] as MockFieldValueHistory[],
 
   audit: [] as AuditEvent[],
 };
