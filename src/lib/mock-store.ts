@@ -1,9 +1,9 @@
 // In-memory mock store for preview mode. Production reads from MySQL via Drizzle.
 // Every screen reads/writes through this store so all UI features are wired end-to-end.
 import { appendAudit, type AuditEvent } from "./audit";
-import type { ProfileType } from "@/db/schema/profiles";
-import type { ModuleState, ModuleVisibility } from "@/db/schema/modules";
-import type { MemoryScope } from "@/db/schema/memory";
+import type { ProfileType } from "@/db/schema/identity/profiles";
+import type { ModuleState, ModuleVisibility } from "@/db/schema/project/modules";
+import type { MemoryScope } from "@/db/schema/project/memory";
 
 export type MockUser = {
   id: string;
