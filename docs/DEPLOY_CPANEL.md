@@ -4,6 +4,33 @@ Builder Core v0.2 deploy útmutató cPanel Node.js Selector + Passenger
 környezetre. **DB migráció és valódi secret beállítás csak akkor történik,
 amikor a B-3 nyitásakor explicit jóváhagyod.**
 
+## Build target — Node server (NEM Cloudflare)
+
+A `vite.config.ts` a Nitro **`node-server`** presetjét használja. Ez egy
+natív Node HTTP szervert állít elő, ami közvetlenül kompatibilis cPanel
+Passengerrel, PM2-vel, systemd-vel. **NEM** Cloudflare Worker / fetch-only
+bundle. A korábbi `dist/server/server.js` (fetch export) helyett a build
+most az alábbi struktúrát adja:
+
+```
+.output/
+├── server/
+│   └── index.mjs          ← Node HTTP server entry (listens on process.env.PORT)
+├── public/                ← statikus kliens assetek (CSS, JS, képek, fontok)
+│   ├── _build/            ← Vite hash-elt JS/CSS chunkok
+│   └── ...
+└── nitro.json             ← preset metadata
+```
+
+A repo gyökerében van egy `app.js` wrapper, ami csak ennyit csinál:
+
+```js
+import("./.output/server/index.mjs");
+```
+
+Ez a **cPanel Passenger startup file** — egyetlen stabil belépési pont,
+amit nem ír felül a build. A `.output/` minden buildkor újragenerálódik.
+
 ---
 
 ## 0. Előfeltételek
@@ -42,7 +69,7 @@ git checkout main
 3. Application mode: **Production**.
 4. Application root: `apps/builder-live` (relatív a home-hoz).
 5. Application URL: `builder.bbs-europe.eu`.
-6. Application startup file: `.output/server/index.mjs`
+6. Application startup file: **`app.js`** (a repo gyökerében; ez tölti be a `.output/server/index.mjs`-t).
 7. Passenger log file: hagyd a default-ot.
 
 ## 4. Environment Variables (cPanel UI)
@@ -80,17 +107,31 @@ Majd cPanel → **Restart Application**.
 
 | Cél | Parancs |
 |-----|---------|
-| Install | `bun install` (lokál) / `npm install --omit=dev` (cPanel) |
+| Install | `bun install` (lokál) / `npm install` (cPanel) |
 | Build | `bun run build` (lokál) / `npm run build` (cPanel) |
-| Start (prod) | `node .output/server/index.mjs` |
+| Start (prod, cPanel) | `app.js` (Passenger indítja) |
+| Start (prod, manuális) | `node .output/server/index.mjs` |
 | Dev | `bun run dev` (csak lokál) |
+
+> A `npm install --omit=dev` itt **nem ajánlott**: `vite` és `nitro`
+> build-time függőségek a `devDependencies`-ben vannak, és kellenek a
+> `npm run build`-hez. A `.output/` futtatásához már nincs szükség
+> `node_modules`-ra (Nitro mindent bele bundle-öl), de a build lépéshez igen.
 
 ## 6. Apache / Passenger útválasztás
 
 A `Setup Node.js App` automatikusan generálja a `.htaccess`-t a doc root-ba,
-ami minden requestet a Node app-ra irányít. A TanStack Start routing
-(file-based) ezután mindent kezel — **nincs szükség** külön
+ami minden requestet a Node app-ra irányít (Passenger proxy). A statikus
+assetek (`/assets/...`, `/_build/...`) is a Node szerveren mennek keresztül
+— a Nitro `node-server` preset beépített static file middleware-rel szolgálja
+ki a `.output/public/` tartalmát. **Nincs szükség** külön
 `public/_redirects`, `vercel.json` vagy `BrowserRouter` konfigurációra.
+
+> Ha az assetek 404-et adnak vagy az oldal csupasz HTML CSS nélkül, az
+> szinte mindig azt jelenti, hogy a régi `dist/server/server.js`
+> (Cloudflare fetch) bundle fut még. Ellenőrizd, hogy a `vite.config.ts`-ben
+> `nitro: { preset: "node-server" }` szerepel, futtass
+> `rm -rf .output dist && npm run build`-et, majd Restart App.
 
 ## 7. Adatbázis (B-3+, MOST NE FUSSON)
 
