@@ -39,11 +39,20 @@ bun run dev         # http://localhost:8080
 ## Build és production start
 
 ```bash
-bun run build                   # Vite + Nitro build
-node .output/server/index.mjs   # production start (Nitro server entry)
+bun run build                   # Vite + Nitro (node-server preset) build
+node .output/server/index.mjs   # natív Node HTTP server, listens on PORT
 ```
 
-A `.output/` mappa minden szükséges fájlt tartalmaz a deploy-hoz.
+A build a Nitro **`node-server`** presetjét használja — natív Node entry,
+nem Cloudflare/fetch-only worker. Output:
+
+```
+.output/server/index.mjs   ← Node startup (listens on process.env.PORT)
+.output/public/**          ← statikus assetek (CSS / JS / képek)
+app.js                     ← cPanel Passenger wrapper (importálja a fentit)
+```
+
+cPanel Node.js App-ban a **startup file** mindig `app.js`.
 
 ---
 
