@@ -31,10 +31,22 @@ export default defineConfig({
   nitro: {
     preset: "node-server",
   },
-  esbuild: {
+  // Force production automatic JSX runtime even when NODE_ENV is unset
+  // at build time (e.g. cPanel `npm run build` without env vars).
+  // Without this @vitejs/plugin-react emits jsx-dev-runtime calls into the
+  // SSR bundle, which Nitro then tree-shakes, producing the runtime error:
+  //   TypeError: jsxDevRuntimeExports.jsxDEV is not a function
+  react: {
+    jsxRuntime: "automatic",
     jsxDev: false,
   },
-  define: {
-    "process.env.NODE_ENV": JSON.stringify("production"),
+  vite: {
+    esbuild: {
+      jsxDev: false,
+    },
+    define: {
+      "process.env.NODE_ENV": JSON.stringify("production"),
+    },
   },
 });
+
