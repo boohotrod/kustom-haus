@@ -172,6 +172,31 @@ Test app-hoz ugyanez `builder-test` + `develop` branch-ből.
 - [ ] Passenger error log üres.
 - [ ] Browser console nincs hibával.
 
+## 9b. Ismert SSR hiba — `jsxDEV is not a function`
+
+Ha a Passenger error log ezt mutatja:
+
+```
+TypeError: jsxDevRuntimeExports.jsxDEV is not a function
+    at RootShell (.output/server/_ssr/router-*.mjs)
+```
+
+akkor a build dev JSX runtime hívásokkal készült. Ez akkor fordul elő, ha az
+`npm run build` `NODE_ENV=production` nélkül futott. A repo már védve van
+ellene három rétegben (`package.json` build script, `vite.config.ts` `react.jsxDev: false`,
+`esbuild.jsxDev: false`, és `define`-on keresztüli `process.env.NODE_ENV` injekció),
+de ha mégis előjön, tisztán újra kell buildelni:
+
+```bash
+cd ~/apps/boo-base-core-test
+source ~/nodevenv/apps/boo-base-core-test/22/bin/activate
+rm -rf .output dist node_modules
+npm install
+npm run build
+# cPanel UI → Restart Application
+```
+
+
 ## 10. Most NE csináld
 
 - Ne futtass valódi DB migrációt.
